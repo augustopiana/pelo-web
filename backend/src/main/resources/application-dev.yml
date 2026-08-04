@@ -1,0 +1,20 @@
+# Perfil dev (local). Los valores por defecto apuntan al Postgres de docker-compose.
+# Se pueden sobreescribir por variables de entorno (o un .env local, no versionado).
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vinilos}
+    username: ${DB_USER:vinilos}
+    password: ${DB_PASSWORD:vinilos}
+  jpa:
+    hibernate:
+      # El esquema lo maneja Flyway; Hibernate solo valida que coincida.
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org.flywaydb: info
+    org.hibernate.SQL: debug

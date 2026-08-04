@@ -1,0 +1,24 @@
+# PostgreSQL local para desarrollo.
+# Uso: docker compose up -d
+# Las credenciales vienen de variables de entorno; si no estan, usa los defaults de dev
+# (que coinciden con backend/src/main/resources/application-dev.yml).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: pelo-web-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-vinilos}
+      POSTGRES_USER: ${DB_USER:-vinilos}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vinilos}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vinilos} -d ${DB_NAME:-vinilos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

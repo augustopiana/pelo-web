@@ -1,0 +1,615 @@
+/* ==========================================================================
+   pelo discos — design system
+   Estetica editorial B/N (Discogs / Animals Records) + acento rosa neon.
+   Chrome (header/footer) negro; catalogo sobre blanco. Theme-aware (dark).
+   ========================================================================== */
+
+:root {
+  --ink: #0a0a0a;
+  --paper: #ffffff;
+  --paper-2: #f4f4f2;
+  --line: #0a0a0a;
+  --line-soft: rgba(10, 10, 10, 0.14);
+  --muted: #6b6b6b;
+
+  --neon: #ff2e9a;
+  --neon-2: #ff64b6;
+  --neon-blue: #2e9bff;
+  --neon-cyan: #22d3ee;
+  --neon-glow: rgba(255, 46, 154, 0.55);
+
+  --chrome-bg: #0a0a0a;
+  --chrome-fg: #ffffff;
+  --chrome-muted: #9a9a9a;
+
+  --font: "Helvetica Neue", Helvetica, Arial, "Inter", system-ui, sans-serif;
+  --maxw: 1200px;
+  --radius: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #f1f1f1;
+    --paper: #0d0d0d;
+    --paper-2: #151515;
+    --line: #f1f1f1;
+    --line-soft: rgba(255, 255, 255, 0.16);
+    --muted: #9a9a9a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5em;
+}
+
+.upper {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ---- Layout shell -------------------------------------------------------- */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  border-bottom: 1px solid #000;
+}
+
+.app-header__inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Wordmark: "pelo" bold + "discos" cursiva, como el logo */
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: var(--chrome-fg);
+  line-height: 1;
+}
+.brand__pelo {
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.04em;
+}
+.brand__discos {
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.15rem;
+  color: var(--neon);
+  text-shadow: 0 0 10px var(--neon-glow);
+}
+
+.app-nav {
+  display: flex;
+  gap: 1.4rem;
+  margin-left: auto;
+  align-items: center;
+}
+.app-nav a {
+  color: var(--chrome-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.3rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s;
+}
+.app-nav a:hover {
+  color: var(--chrome-fg);
+}
+.app-nav a.active {
+  color: #fff;
+  border-bottom-color: var(--neon);
+  text-shadow: 0 0 8px var(--neon-glow);
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.app-footer {
+  background: var(--chrome-bg);
+  color: var(--chrome-muted);
+  border-top: 1px solid #000;
+}
+.app-footer__inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+.app-footer a {
+  color: var(--chrome-fg);
+  border-bottom: 1px solid var(--neon);
+}
+
+/* ---- Buttons ------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn--neon {
+  background: var(--neon);
+  border-color: var(--neon);
+  color: #fff;
+  box-shadow: 0 0 0 rgba(255, 46, 154, 0);
+}
+.btn--neon:hover {
+  background: var(--neon-2);
+  border-color: var(--neon-2);
+  color: #0a0a0a;
+  box-shadow: 0 0 18px var(--neon-glow);
+}
+.btn--block {
+  width: 100%;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn:disabled:hover {
+  background: transparent;
+  color: var(--ink);
+}
+
+/* ---- Forms --------------------------------------------------------------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+.field label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--muted);
+}
+.input {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line-soft);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px rgba(255, 46, 154, 0.15);
+}
+
+/* ---- Auth cards ---------------------------------------------------------- */
+.auth-wrap {
+  max-width: 400px;
+  margin: 1rem auto;
+}
+.card {
+  border: 1px solid var(--line-soft);
+  background: var(--paper);
+  padding: 1.6rem;
+  border-radius: var(--radius);
+}
+
+/* ---- Alerts -------------------------------------------------------------- */
+.alert {
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line-soft);
+}
+.alert--error {
+  border-color: var(--neon);
+  background: rgba(255, 46, 154, 0.08);
+}
+.alert--ok {
+  border-color: var(--neon-cyan);
+  background: rgba(34, 211, 238, 0.08);
+}
+.alert--warn {
+  border-color: var(--neon-blue);
+  background: rgba(46, 155, 255, 0.08);
+}
+
+/* ---- Catalog toolbar ----------------------------------------------------- */
+.catalog-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  border: 1px solid var(--line-soft);
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+.filters .field {
+  margin-bottom: 0;
+}
+.filters__actions {
+  display: flex;
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.result-count {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* ---- Grid & cards -------------------------------------------------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1.1rem;
+}
+.vinilo-card {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.vinilo-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 -2px var(--neon), 0 14px 30px rgba(255, 46, 154, 0.18);
+}
+.vinilo-card__cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.vinilo-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.vinilo-card__body {
+  padding: 0.7rem 0.8rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.vinilo-card__title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+.vinilo-card__artist {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.vinilo-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+.price {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+/* ---- Badges & chips ------------------------------------------------------ */
+.badge {
+  position: absolute;
+  top: 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+}
+.badge--senable {
+  right: 0.5rem;
+  background: var(--neon);
+  color: #fff;
+  box-shadow: 0 0 12px var(--neon-glow);
+}
+.badge--directa {
+  right: 0.5rem;
+  background: #0a0a0a;
+  color: #fff;
+}
+.badge--estado {
+  left: 0.5rem;
+  background: #fff;
+  color: #0a0a0a;
+  border: 1px solid #0a0a0a;
+}
+.badge--reservado {
+  left: 0.5rem;
+  background: var(--neon-blue);
+  color: #fff;
+}
+.badge--vendido {
+  left: 0.5rem;
+  background: #0a0a0a;
+  color: #fff;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: help;
+}
+
+/* ---- Goldmine tooltip ---------------------------------------------------- */
+.gm {
+  position: relative;
+  display: inline-flex;
+}
+.gm__pop {
+  position: absolute;
+  bottom: 130%;
+  left: 0;
+  width: 240px;
+  background: #0a0a0a;
+  color: #fff;
+  border: 1px solid var(--neon);
+  box-shadow: 0 0 18px var(--neon-glow);
+  padding: 0.6rem 0.7rem;
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.4;
+  z-index: 30;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+}
+.gm:hover .gm__pop,
+.gm:focus-within .gm__pop {
+  opacity: 1;
+  transform: translateY(0);
+}
+.gm__pop strong {
+  color: var(--neon-2);
+}
+
+/* ---- Ficha (detail) ------------------------------------------------------ */
+.ficha {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+@media (max-width: 780px) {
+  .ficha {
+    grid-template-columns: 1fr;
+  }
+}
+.gallery__main {
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.gallery__main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gallery__thumbs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.gallery__thumb {
+  width: 62px;
+  height: 62px;
+  border: 1px solid var(--line-soft);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+.gallery__thumb.active {
+  border-color: var(--neon);
+  box-shadow: 0 0 10px var(--neon-glow);
+}
+.gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ficha__meta {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  border-top: 1px solid var(--line-soft);
+}
+.ficha__meta li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 0.9rem;
+}
+.ficha__meta li span:first-child {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.ficha__price {
+  font-size: 2rem;
+  font-weight: 800;
+}
+.corte-tag {
+  display: inline-block;
+  margin: 0.5rem 0 1rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px dashed var(--neon);
+  color: var(--neon);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ---- Pagination ---------------------------------------------------------- */
+.pager {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+/* ---- Misc ---------------------------------------------------------------- */
+.page-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.muted {
+  color: var(--muted);
+}
+.link-neon {
+  color: var(--neon);
+  border-bottom: 1px solid var(--neon);
+}
+.center-note {
+  text-align: center;
+  color: var(--muted);
+  padding: 3rem 1rem;
+}
+.spinner {
+  color: var(--muted);
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+/* Health chip in footer */
+.health {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+.health--ok { color: var(--neon-cyan); }
+.health--warn { color: var(--neon); }
+.health--error { color: var(--neon); }
+.health--loading { color: var(--chrome-muted); }
+
+.glosario table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+.glosario th,
+.glosario td {
+  text-align: left;
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+.glosario th {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+.glosario .sigla {
+  font-weight: 800;
+  color: var(--neon);
+  white-space: nowrap;
+}
