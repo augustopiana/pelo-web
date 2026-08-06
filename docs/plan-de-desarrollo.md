@@ -38,11 +38,11 @@ Alcance: HU-01…HU-03, HU-07…HU-09.
 - Catálogo público: grilla, buscador, filtros (artista/género/precio/estado), orden por más nuevos, ficha con galería y tooltip/glosario Goldmine.
 
 **Criterios de salida:**
-- [~] Un cliente puede registrarse, verificar email e iniciar sesión (ambos métodos). _(email/contraseña completo; **Google scaffolded**, falta cargar `GOOGLE_CLIENT_ID`)_
+- [x] Un cliente puede registrarse, verificar email e iniciar sesión (ambos métodos). _(email/contraseña + **login con Google** activado)_
 - [x] El catálogo se navega, busca y filtra sobre datos de prueba.
 - [x] Se explica la escala Goldmine en la web.
 
-> Cerrado (parcial) en `v0.3.0` (2026-08-04). Verificado E2E: registro→verificación (link en log dev)→login→/me→ruta protegida; catálogo con búsqueda/filtros/orden/ficha sobre datos sembrados; glosario Goldmine. **Pendiente para cerrar 100%:** activar login con Google (credenciales). Ver `registro-releases.md`.
+> **Cerrado** en `v0.3.0` + `v0.3.1` (2026-08-04). Verificado E2E: registro→verificación (link en log dev)→login→/me→ruta protegida; catálogo con búsqueda/filtros/orden/ficha sobre datos sembrados; glosario Goldmine. Login con Google activado (GIS en el front + verificación de ID token en el back). Ver `registro-releases.md`.
 
 ---
 

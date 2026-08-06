@@ -44,6 +44,25 @@
 
 ## Historial
 
+## [0.3.1] — 2026-08-04 — Activación del login con Google
+
+### Agregado
+- **Login con Google operativo** end-to-end: integración de **Google Identity Services** en el frontend (`GoogleSignInButton`, script GIS en `index.html`, gated por `VITE_GOOGLE_CLIENT_ID`) contra el endpoint `POST /auth/google` que ya verificaba el ID token. Se cargó `GOOGLE_CLIENT_ID` en el backend y `VITE_GOOGLE_CLIENT_ID` en el frontend (`.env.local`, no versionado).
+
+### Arreglado
+- **Precedencia de env de Vite:** `.env.development` tenía prioridad sobre `.env.local` en modo dev, y su `VITE_GOOGLE_CLIENT_ID=` (vacío) pisaba el valor real. Se quitó esa clave de `.env.development` (queda solo en `.env.local`).
+- **Artefactos de build:** `tsc -b` emitía `vite.config.js`/`.d.ts` y `*.tsbuildinfo` en el árbol; se redirigen a `node_modules/.tmp` y se ignora `*.tsbuildinfo`.
+
+### Cierra
+- Criterio de M1 "iniciar sesión (ambos métodos)": ahora **completo** (email/contraseña + Google). T-06 hecho.
+
+### Verificación
+- Backend: `POST /auth/google` pasó de 503 (no configurado) a 401 (token inválido) → toma el Client ID y verifica de verdad.
+- Frontend: el botón "Sign in with Google" (GIS) renderiza sin errores de origen. El login real con la cuenta de Google lo completa el usuario.
+
+### Próximo paso
+- **Milestone 2 — Gestión de vinilos del dueño (`v0.4.0`)**: ABM de vinilos (`senable`, `descuento_corte_pct`), subida de fotos (portada = primera), gestión de géneros, pausar/reactivar (E2).
+
 ## [0.3.0] — 2026-08-04 — Milestone 1: cuentas y catálogo de lectura
 
 ### Agregado

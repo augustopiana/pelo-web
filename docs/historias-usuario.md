@@ -4,7 +4,7 @@
 > Convención de IDs: `HU-##` historias, `T-##` tasks. Referencias a reglas (`R-#`) y flujos (`Flujo X`) apuntan a la spec de dominio.
 
 ## Estado global (resumen)
-- [~] E1 — Cuentas y autenticación _(email/contraseña + verificación + JWT + cuenta hechos; falta activar login con Google — T-06)_
+- [x] E1 — Cuentas y autenticación _(email/contraseña + verificación + JWT + login con Google + cuenta)_
 - [ ] E2 — Publicación y gestión de vinilos (dueño)
 - [x] E3 — Catálogo y descubrimiento (cliente)
 - [ ] E4 — Seña
@@ -34,8 +34,8 @@ Como cliente, quiero iniciar sesión con email/contraseña o con Google.
 - CA: login con Google vincula por `google_id`.
 - CA: se emite JWT (access/refresh).
 - [x] T-05 Login email/contraseña + JWT (access + refresh)
-- [ ] T-06 Google OAuth2 _(scaffold listo: endpoint `POST /auth/google` con verificación de ID token, gated por `GOOGLE_CLIENT_ID`; falta cargar credenciales para activarlo)_
-- [x] T-07 UI de login con ambas opciones _(email/contraseña operativo; botón Google deshabilitado hasta configurar credenciales)_
+- [x] T-06 Google OAuth2 _(Google Identity Services en el front → `POST /auth/google` verifica el ID token; activado con `GOOGLE_CLIENT_ID`)_
+- [x] T-07 UI de login con ambas opciones _(email/contraseña + botón "Sign in with Google")_
 
 ### HU-03 — Ver mi cuenta
 Como cliente, quiero ver mis órdenes, sus estados, mis vinilos comprados y mis cupones.
