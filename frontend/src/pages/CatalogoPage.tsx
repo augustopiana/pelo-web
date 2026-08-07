@@ -60,7 +60,7 @@ export function CatalogoPage() {
       </div>
 
       <form className="filters" onSubmit={buscar}>
-        <div className="field">
+        <div className="field field--buscar">
           <label>Buscar</label>
           <input
             className="input"
@@ -91,11 +91,11 @@ export function CatalogoPage() {
             ))}
           </select>
         </div>
-        <div className="field">
+        <div className="field field--precio">
           <label>Precio mín.</label>
           <input className="input" type="number" min="0" value={filtros.precioMin} onChange={(e) => set('precioMin', e.target.value)} />
         </div>
-        <div className="field">
+        <div className="field field--precio">
           <label>Precio máx.</label>
           <input className="input" type="number" min="0" value={filtros.precioMax} onChange={(e) => set('precioMax', e.target.value)} />
         </div>

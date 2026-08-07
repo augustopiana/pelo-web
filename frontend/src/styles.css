@@ -1,42 +1,39 @@
 /* ==========================================================================
    pelo discos — design system
-   Estetica editorial B/N (Discogs / Animals Records) + acento rosa neon.
-   Chrome (header/footer) negro; catalogo sobre blanco. Theme-aware (dark).
+   Estetica cálida del local: madera + luz natural + alfombras persas, con el
+   cartel de neón rosa. Catálogo sobre crema; chrome (header/footer) negro cálido
+   con el wordmark en neón. Theme-aware (dark = vibe nocturna).
    ========================================================================== */
 
 :root {
-  --ink: #0a0a0a;
-  --paper: #ffffff;
-  --paper-2: #f4f4f2;
-  --line: #0a0a0a;
-  --line-soft: rgba(10, 10, 10, 0.14);
-  --muted: #6b6b6b;
+  --ink: #1c1613;               /* negro cálido (texto) */
+  --paper: #f7f2ea;             /* crema cálido (paredes con luz) */
+  --paper-2: #efe6d7;           /* superficies cálidas */
+  --line: #1c1613;
+  --line-soft: rgba(28, 22, 19, 0.16);
+  --muted: #7a6e62;             /* gris cálido */
 
-  --neon: #ff2e9a;
-  --neon-2: #ff64b6;
-  --neon-blue: #2e9bff;
+  --neon: #ff3da6;              /* rosa del cartel de neón */
+  --neon-2: #ff70bd;
+  --neon-blue: #3a78c2;         /* azul de la estantería */
   --neon-cyan: #22d3ee;
-  --neon-glow: rgba(255, 46, 154, 0.55);
+  --neon-glow: rgba(255, 61, 166, 0.6);
 
-  --chrome-bg: #0a0a0a;
-  --chrome-fg: #ffffff;
-  --chrome-muted: #9a9a9a;
+  --amber: #e39a3c;             /* madera / tira de luz del techo */
+  --amber-glow: rgba(227, 154, 60, 0.5);
+  --terracota: #c24a32;         /* rojo alfombra persa / vinilo naranja */
+  --indigo: #2c5a78;            /* azul profundo de la alfombra */
+
+  --chrome-bg: #ffffff;         /* header/footer claros (no negro) */
+  --chrome-fg: #1c1613;         /* texto oscuro sobre chrome claro */
+  --chrome-muted: #7a6e62;
 
   --font: "Helvetica Neue", Helvetica, Arial, "Inter", system-ui, sans-serif;
   --maxw: 1200px;
   --radius: 2px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ink: #f1f1f1;
-    --paper: #0d0d0d;
-    --paper-2: #151515;
-    --line: #f1f1f1;
-    --line-soft: rgba(255, 255, 255, 0.16);
-    --muted: #9a9a9a;
-  }
-}
+/* La web es siempre clara (crema + header blanco); no sigue el modo oscuro del sistema. */
 
 * {
   box-sizing: border-box;
@@ -89,7 +86,7 @@ h3 {
   z-index: 20;
   background: var(--chrome-bg);
   color: var(--chrome-fg);
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .app-header__inner {
@@ -101,25 +98,29 @@ h3 {
   gap: 1.5rem;
 }
 
-/* Wordmark: "pelo" bold + "discos" cursiva, como el logo */
+/* Wordmark fiel al logo: "pelo" en Fredoka (redondeada, bold) + "discos" en Pacifico
+   (script), plano y oscuro. Fuentes bundleadas (ver main.tsx). */
 .brand {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.35rem;
-  color: var(--chrome-fg);
+  gap: 0.12rem;
   line-height: 1;
+  color: var(--chrome-fg);
 }
 .brand__pelo {
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: -0.04em;
+  font-family: "Fredoka", var(--font);
+  font-weight: 700;
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+  color: var(--chrome-fg);
 }
 .brand__discos {
-  font-style: italic;
-  font-weight: 500;
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
   font-size: 1.15rem;
-  color: var(--neon);
-  text-shadow: 0 0 10px var(--neon-glow);
+  color: var(--chrome-fg);
+  margin-left: 0.04rem;
+  transform: translateY(2px);
 }
 
 .app-nav {
@@ -142,9 +143,8 @@ h3 {
   color: var(--chrome-fg);
 }
 .app-nav a.active {
-  color: #fff;
+  color: var(--neon);
   border-bottom-color: var(--neon);
-  text-shadow: 0 0 8px var(--neon-glow);
 }
 
 .app-main {
@@ -158,7 +158,7 @@ h3 {
 .app-footer {
   background: var(--chrome-bg);
   color: var(--chrome-muted);
-  border-top: 1px solid #000;
+  border-top: 1px solid var(--line-soft);
 }
 .app-footer__inner {
   max-width: var(--maxw);
@@ -295,22 +295,44 @@ h3 {
   justify-content: space-between;
   margin-bottom: 1.25rem;
 }
+/* Buscador minimalista: fila compacta alineada a la izquierda, sin recuadro. */
 .filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  border: 1px solid var(--line-soft);
-  padding: 1rem;
-  border-radius: var(--radius);
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 0.7rem 0.85rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid var(--line-soft);
 }
 .filters .field {
   margin-bottom: 0;
+  gap: 0.22rem;
+  width: 148px;
+}
+.filters .field--buscar {
+  width: 220px;
+}
+.filters .field--precio {
+  width: 96px;
+}
+.filters .field label {
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+}
+.filters .input {
+  padding: 0.45rem 0.55rem;
+  font-size: 0.86rem;
 }
 .filters__actions {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   gap: 0.5rem;
+}
+.filters__actions .btn {
+  padding: 0.56rem 0.9rem;
+  font-size: 0.72rem;
 }
 
 .result-count {
@@ -335,7 +357,8 @@ h3 {
 }
 .vinilo-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 0 -2px var(--neon), 0 14px 30px rgba(255, 46, 154, 0.18);
+  box-shadow: 0 5px 0 -2px var(--neon), 0 12px 26px var(--neon-glow),
+    0 18px 40px var(--amber-glow);
 }
 .vinilo-card__cover {
   position: relative;
@@ -540,8 +563,9 @@ h3 {
   display: inline-block;
   margin: 0.5rem 0 1rem;
   padding: 0.35rem 0.6rem;
-  border: 1px dashed var(--neon);
-  color: var(--neon);
+  border: 1px dashed var(--amber);
+  color: var(--terracota);
+  background: rgba(227, 154, 60, 0.14);
   border-radius: var(--radius);
   font-size: 0.8rem;
   font-weight: 700;
