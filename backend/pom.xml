@@ -13,13 +13,26 @@
 
     <groupId>com.peloweb</groupId>
     <artifactId>vinilos</artifactId>
-    <version>0.3.1</version>
+    <version>0.4.0</version>
     <name>vinilos</name>
     <description>Modulo de venta de vinilos - pelo-web</description>
 
     <properties>
         <java.version>21</java.version>
+        <aws.sdk.version>2.28.29</aws.sdk.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -71,6 +84,12 @@
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
             <version>2.7.0</version>
+        </dependency>
+
+        <!-- Object storage S3-compatible (MinIO en dev) para fotos de vinilos -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
         </dependency>
 
         <dependency>

@@ -2,11 +2,13 @@
 import type {
   AuthResponse,
   Cupon,
+  Foto,
   Genero,
   Orden,
   PageResponse,
   Usuario,
   ViniloDetalle,
+  ViniloFormData,
   ViniloResumen,
   CatalogFiltros,
 } from './types'
@@ -104,6 +106,26 @@ async function request<T>(path: string, opts: Opts = {}, retry = true): Promise<
   }
 
   if (!res.ok) throw await toError(res)
+  if (res.status === 204) return undefined as T
+  return (await res.json()) as T
+}
+
+/** Igual que request pero con FormData (multipart), para subir fotos. */
+async function requestMultipart<T>(path: string, formData: FormData, retry = true): Promise<T> {
+  const headers: Record<string, string> = {}
+  const token = tokenStore.access()
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  const res = await fetch(`${API_URL}${path}`, { method: 'POST', headers, body: formData })
+
+  if (res.status === 401 && retry && tokenStore.refresh()) {
+    const ok = await tryRefresh()
+    if (ok) return requestMultipart<T>(path, formData, false)
+    tokenStore.clear()
+    onAuthFailure?.()
+    throw new ApiError(401, 'Sesión expirada')
+  }
+  if (!res.ok) throw await toError(res)
   return (await res.json()) as T
 }
 
@@ -137,6 +159,24 @@ export const catalogApi = {
 export const accountApi = {
   ordenes: () => request<Orden[]>('/ordenes/mias', { auth: true }),
   cupones: () => request<Cupon[]>('/cupones/mios', { auth: true }),
+}
+
+export const adminApi = {
+  listVinilos: (page = 0, size = 100) =>
+    request<PageResponse<ViniloResumen>>(`/admin/vinilos?page=${page}&size=${size}`, { auth: true }),
+  getVinilo: (id: string) => request<ViniloDetalle>(`/admin/vinilos/${id}`, { auth: true }),
+  crearVinilo: (body: ViniloFormData) => request<ViniloDetalle>('/vinilos', { method: 'POST', body, auth: true }),
+  actualizarVinilo: (id: string, body: ViniloFormData) =>
+    request<ViniloDetalle>(`/vinilos/${id}`, { method: 'PUT', body, auth: true }),
+  pausar: (id: string) => request<ViniloDetalle>(`/vinilos/${id}/pausar`, { method: 'PATCH', auth: true }),
+  subirFotos: (id: string, files: File[]) => {
+    const fd = new FormData()
+    files.forEach((f) => fd.append('files', f))
+    return requestMultipart<Foto[]>(`/vinilos/${id}/fotos`, fd)
+  },
+  borrarFoto: (id: string, fotoId: string) =>
+    request<void>(`/vinilos/${id}/fotos/${fotoId}`, { method: 'DELETE', auth: true }),
+  crearGenero: (nombre: string) => request<Genero>('/generos', { method: 'POST', body: { nombre }, auth: true }),
 }
 
 export interface HealthResponse {

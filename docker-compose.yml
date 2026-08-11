@@ -20,5 +20,44 @@ services:
       timeout: 5s
       retries: 10
 
+  # Object storage S3-compatible para las fotos de los vinilos.
+  # Consola web: http://localhost:9001 (user/pass = MINIO_ROOT_*).
+  minio:
+    image: minio/minio
+    container_name: pelo-web-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-peloadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-pelo-dev-secret}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Job de un solo uso: crea el bucket y lo deja con lectura publica (catalogo publico).
+  minio-init:
+    image: minio/mc
+    container_name: pelo-web-minio-init
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-peloadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-pelo-dev-secret}
+      BUCKET: ${S3_BUCKET:-pelo-fotos}
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 \"$$MINIO_ROOT_USER\" \"$$MINIO_ROOT_PASSWORD\"; do echo 'esperando a minio...'; sleep 2; done;
+      mc mb --ignore-existing local/$$BUCKET;
+      mc anonymous set download local/$$BUCKET;
+      echo \"bucket $$BUCKET listo (lectura publica)\";
+      "
+
 volumes:
   pgdata:
+  miniodata:

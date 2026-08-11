@@ -44,6 +44,41 @@
 
 ## Historial
 
+## [0.4.0] — 2026-08-04 — Milestone 2: gestión de vinilos del dueño
+
+### Agregado
+- **Object storage (MinIO)** para las fotos: servicio `minio` + init de bucket (`pelo-fotos`, lectura pública) en `docker-compose`. Backend con SDK de S3 (`software.amazon.awssdk:s3`) detrás de una interfaz `StorageService` (S3-compatible; se cambia a S3/R2 real en prod sin tocar la lógica).
+- **ABM de vinilos (E2)** — endpoints admin: `POST /vinilos` (alta), `PUT /vinilos/{id}` (edición), `PATCH /vinilos/{id}/pausar` (pausar/reactivar), `POST /vinilos/{id}/fotos` (subida multipart → MinIO; **primera foto = portada**), `DELETE /vinilos/{id}/fotos/{fotoId}`, `GET /admin/vinilos` (lista completa, incluye pausados/vendidos), `GET /admin/vinilos/{id}`.
+- **Géneros (HU-06)**: `POST /generos` (alta), con `GET /generos` público ya existente.
+- **Autorización admin**: escritura de vinilos/fotos/géneros exige `ROLE_ADMIN`; catálogo (GET) sigue público.
+- **Panel del dueño (frontend)**: home con accesos, lista de vinilos con pausar/reactivar y editar, formulario de alta/edición con subida y borrado de fotos (preview + portada), y ABM de géneros. Rutas protegidas solo ADMIN.
+
+### Cambiado
+- `FotoDTO` ahora incluye el `id` (para poder borrar fotos desde el panel).
+- Límite de subida multipart configurado (10 MB por archivo).
+
+### Arreglado
+- **401 vs 403**: un usuario autenticado sin permiso recibía 401 (por `sendError`, que re-dispatchaba a `/error` como anónimo). Se usa `setStatus(403)` en el `accessDeniedHandler`. Así el cliente autenticado obtiene 403 (no dispara refresh/logout) y el anónimo sigue en 401.
+
+### Migraciones / BD
+- Ninguna nueva. Las entidades `Vinilo`, `FotoVinilo`, `Genero` ya existían (M0).
+
+### Historias completadas
+- **HU-04** (alta con fotos), **HU-05** (editar / pausar / reactivar), **HU-06** (géneros). Épica **E2** cerrada. Ver `historias-usuario.md`.
+
+### Decisiones
+- Storage de fotos: **MinIO** (S3-compatible) en dev; en prod se apunta a S3/R2/Spaces o MinIO self-hosted sin cambiar código. Ver la nota de object storage guardada en el vault.
+
+### Criterios de salida (M2)
+- [x] El dueño publica un vinilo con fotos y aparece en el catálogo.
+- [x] Pausar lo saca del catálogo; reactivar lo devuelve.
+
+### Verificación
+- E2E: alta por el panel → foto a MinIO (portada) → aparece en el catálogo público con portada; pausar oculta (catálogo 0), reactivar reaparece; autorización admin 200 / cliente 403 / anon 401.
+
+### Próximo paso (desde dónde seguir)
+- **Milestone 3 — Pagos: seña y compra directa (`v0.5.0`)**: órdenes (seña 50% / compra 100%), integración Mercado Pago en sandbox, confirmación por **webhook** idempotente, generación de **código de retiro**, **bloqueo de concurrencia** (pieza única, R-11) y cancelación con refund. Épicas E4 y E5.
+
 ## [0.3.1] — 2026-08-04 — Activación del login con Google
 
 ### Agregado

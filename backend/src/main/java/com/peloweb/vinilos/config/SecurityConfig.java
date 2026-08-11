@@ -40,12 +40,23 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Sin autenticacion valida -> 401 (el front lo usa para renovar/redirigir).
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(UNAUTHORIZED)))
+                // Autenticado pero sin permiso -> 403 (no dispara refresh/logout en el front).
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(UNAUTHORIZED))
+                        .accessDeniedHandler((request, response, denied) ->
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN)))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/health", "/actuator/health").permitAll()
                         .requestMatchers("/auth/register", "/auth/login", "/auth/verify",
                                 "/auth/refresh", "/auth/google").permitAll()
+                        // Catalogo publico (solo lectura).
                         .requestMatchers(HttpMethod.GET, "/vinilos", "/vinilos/**", "/generos").permitAll()
+                        // Gestion del dueno: escritura de vinilos, fotos y generos -> ADMIN.
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/vinilos", "/vinilos/*/fotos", "/generos").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/vinilos/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/vinilos/*/pausar").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/vinilos/*/fotos/*").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

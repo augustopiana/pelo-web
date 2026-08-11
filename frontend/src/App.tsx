@@ -4,6 +4,9 @@ import { CatalogoPage } from './pages/CatalogoPage'
 import { FichaPage } from './pages/FichaPage'
 import { CuentaPage } from './pages/CuentaPage'
 import { PanelPage } from './pages/PanelPage'
+import { PanelVinilosPage } from './pages/panel/PanelVinilosPage'
+import { PanelViniloFormPage } from './pages/panel/PanelViniloFormPage'
+import { PanelGenerosPage } from './pages/panel/PanelGenerosPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegistroPage } from './pages/RegistroPage'
 import { VerificarPage } from './pages/VerificarPage'
@@ -35,6 +38,38 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute adminOnly>
             <PanelPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'panel/vinilos',
+        element: (
+          <ProtectedRoute adminOnly>
+            <PanelVinilosPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'panel/vinilos/nuevo',
+        element: (
+          <ProtectedRoute adminOnly>
+            <PanelViniloFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'panel/vinilos/:id',
+        element: (
+          <ProtectedRoute adminOnly>
+            <PanelViniloFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'panel/generos',
+        element: (
+          <ProtectedRoute adminOnly>
+            <PanelGenerosPage />
           </ProtectedRoute>
         ),
       },

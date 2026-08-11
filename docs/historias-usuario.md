@@ -5,7 +5,7 @@
 
 ## Estado global (resumen)
 - [x] E1 — Cuentas y autenticación _(email/contraseña + verificación + JWT + login con Google + cuenta)_
-- [ ] E2 — Publicación y gestión de vinilos (dueño)
+- [x] E2 — Publicación y gestión de vinilos (dueño)
 - [x] E3 — Catálogo y descubrimiento (cliente)
 - [ ] E4 — Seña
 - [ ] E5 — Compra directa
@@ -52,18 +52,18 @@ Como dueño, quiero cargar un vinilo con todos sus datos y fotos.
 - CA: estado del disco en **escala Goldmine**.
 - CA: la **primera foto** es la portada (Flujo/§8).
 - [x] T-10 Entidades JPA `Vinilo`, `FotoVinilo`, `Genero` + migración _(migración/entidades en M0 · v0.2.0)_
-- [ ] T-11 Endpoint `POST /vinilos` + subida de fotos a storage
-- [ ] T-12 UI de alta en el panel
+- [x] T-11 Endpoint `POST /vinilos` + subida de fotos a storage _(fotos en MinIO / object storage S3-compatible; primera = portada)_
+- [x] T-12 UI de alta en el panel _(crear → redirige a edición para cargar fotos)_
 
 ### HU-05 — Editar / pausar vinilo
 Como dueño, quiero editar datos o pausar/reactivar una publicación.
 - CA: `pausado` sale del catálogo público y puede volver a `disponible`.
-- [ ] T-13 Endpoints `PUT /vinilos/{id}`, `PATCH /vinilos/{id}/pausar`
-- [ ] T-14 UI de edición y pausa
+- [x] T-13 Endpoints `PUT /vinilos/{id}`, `PATCH /vinilos/{id}/pausar` _(pausar togglea disponible↔pausado; bloquea si está reservado/vendido)_
+- [x] T-14 UI de edición y pausa _(editar datos + gestión de fotos; pausar/reactivar desde la lista)_
 
 ### HU-06 — Gestionar géneros
 Como dueño, quiero una lista base de géneros y poder agregar nuevos.
-- [ ] T-15 CRUD mínimo de `Genero`
+- [x] T-15 CRUD mínimo de `Genero` _(alta + listado en el panel; edición/borrado no incluidos por ahora)_
 
 ---
 

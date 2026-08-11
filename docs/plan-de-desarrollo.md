@@ -54,8 +54,10 @@ Alcance: HU-04…HU-06.
 - ABM de vinilos con `senable` y `descuento_corte_pct`, subida de fotos (portada = primera), gestión de géneros, pausar/reactivar.
 
 **Criterios de salida:**
-- [ ] El dueño publica un vinilo con fotos y aparece en el catálogo.
-- [ ] Pausar lo saca del catálogo; reactivar lo devuelve.
+- [x] El dueño publica un vinilo con fotos y aparece en el catálogo.
+- [x] Pausar lo saca del catálogo; reactivar lo devuelve.
+
+> **Cerrado** en `v0.4.0` (2026-08-04). Verificado E2E: alta de vinilo por el panel → subida de fotos a MinIO (primera = portada) → aparece en el catálogo público con su portada; pausar lo oculta y reactivar lo devuelve. Fotos en object storage S3-compatible. Autorización de escritura solo ADMIN. Ver `registro-releases.md`.
 
 ---
 

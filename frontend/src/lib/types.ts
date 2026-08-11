@@ -6,6 +6,7 @@ export interface Genero {
 }
 
 export interface Foto {
+  id: string
   url: string
   orden: number
   esPortada: boolean
@@ -84,6 +85,20 @@ export interface Cupon {
   estado: string
   fechaGeneracion: string
   fechaVencimiento: string
+}
+
+export interface ViniloFormData {
+  titulo: string
+  artista: string
+  generoId?: string | null
+  anio?: number | null
+  sello?: string | null
+  edicionPais?: string | null
+  estadoDisco: string
+  descripcion?: string | null
+  precio: number
+  descuentoCortePct: number
+  senable: boolean
 }
 
 export interface CatalogFiltros {

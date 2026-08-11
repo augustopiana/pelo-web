@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface GeneroRepository extends JpaRepository<Genero, UUID> {
 
     List<Genero> findAllByOrderByNombreAsc();
+
+    boolean existsByNombreIgnoreCase(String nombre);
 }
