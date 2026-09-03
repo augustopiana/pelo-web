@@ -55,6 +55,14 @@ app:
   google:
     # Vacio = login con Google deshabilitado (scaffold). Cargar GOOGLE_CLIENT_ID para activarlo.
     client-id: ${GOOGLE_CLIENT_ID:}
+  # Pagos. 'dev' = gateway simulado (checkout local + webhook simulado). 'mercadopago' = MP real.
+  payments:
+    mode: ${PAYMENTS_MODE:dev}
+    # Minutos que un vinilo queda bloqueado mientras el cliente paga (R-11).
+    hold-min: ${CHECKOUT_HOLD_MIN:30}
+  mp:
+    access-token: ${MP_ACCESS_TOKEN:}
+    public-key: ${MP_PUBLIC_KEY:}
   # Object storage S3-compatible para las fotos (MinIO en dev). Defaults = compose local.
   storage:
     endpoint: ${S3_ENDPOINT:http://localhost:9000}      # lo usa el SDK del backend

@@ -44,6 +44,37 @@
 
 ## Historial
 
+## [0.5.0] — 2026-09-02 — Milestone 3: compra directa (pago con gateway de dev)
+
+### Agregado
+- **Modelo v0.2 (sin seña).** Migración `V2__sin_sena_y_entrega.sql`: quita `Vinilo.senable`, estado `RESERVADO`, `Orden.tipo`, `fecha_vencimiento`/`fecha_cierre`, resolución de `ItemOrden`, `Pago.tipo`; agrega `Orden.modo_entrega` (RETIRO/ENVIO), `fecha_pago`/`fecha_entrega`/`fecha_despacho`, datos de envío (`envio_*`) y `Vinilo.bloqueo_hasta` (hold de checkout). Entidades/enums adaptados.
+- **Compra directa (E5).** `POST /ordenes` crea la orden (100%) bloqueando las piezas (**R-11**, lock pesimista + hold) e inicia el checkout. `PaymentGateway` (interfaz) + `DevPaymentGateway` (checkout simulado). `OrdenService.confirmarPago` es **idempotente** y única fuente de verdad: aprobado → orden `PAGADA`, vinilos `VENDIDO`, **código de retiro** (R-13) si es retiro; rechazado → `CANCELADA` + libera las piezas.
+- **Endpoints:** `POST /ordenes`, `POST /webhooks/mercadopago` (stub para MP real), `POST /dev/pagos/simular` (dev). Gate de **email verificado** (R-12).
+- **Frontend checkout:** ficha → **Comprar** → `/checkout/:id` (elección retiro/envío + datos de dirección) → gateway dev → página de **pago simulado** (aprobar/rechazar) → la orden aparece en **Mi cuenta** (estado + código). Se sacó `senable`/`Señar` de todo el front.
+
+### Migraciones / BD
+- `V2__sin_sena_y_entrega.sql`.
+
+### Historias completadas
+- **HU-12** (comprar directo con entrega). Épica **E5** cerrada (con gateway de dev). Ver `historias-usuario.md`.
+
+### Decisiones
+- **Mercado Pago con gateway de dev primero** (verifica toda la lógica sin credenciales); el MP real (Checkout Pro sandbox) se cablea después sin tocar la lógica (T-34).
+- **R-11** con lock pesimista (`SELECT … FOR UPDATE`) + hold temporal (`bloqueo_hasta`) durante el checkout.
+- Notificaciones/emails y cupón se difieren a M6 (no bloquean el core de M3).
+
+### Criterios de salida (M3)
+- [x] Comprar deja el vinilo `vendido` solo tras el pago aprobado (retiro con código; envío con datos).
+- [x] Dos usuarios no pueden comprar la misma pieza (R-11).
+- [x] Un pago rechazado deja la orden `cancelada` y libera el vinilo.
+
+### Nota de entorno
+- Docker Desktop fue reinstalado en esta iteración (se había desinstalado). Base de dev recreada limpia; Flyway aplicó `V1`+`V2` desde cero.
+
+### Próximo paso (desde dónde seguir)
+- **Cablear Mercado Pago real** (Checkout Pro sandbox): credenciales + `MercadoPagoGateway` + webhook real (consultar el pago a MP) — activa T-34 sin tocar la lógica.
+- **Milestone 4 — Entrega (retiro/envío) + walk-in (`v0.6.0`)**: confirmar entrega por código, marcar envío despachado, venta walk-in.
+
 ## [sin versión] — 2026-08-04 — Cambio de alcance: spec v0.2 (sin seña + entrega + pedidos de búsqueda)
 
 > Cambio de dominio hablado con el dueño. **Solo documentación** (sin código todavía); se replantean los milestones siguientes.

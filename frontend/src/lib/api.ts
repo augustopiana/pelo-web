@@ -1,6 +1,8 @@
 // Cliente HTTP hacia el backend. Maneja el Bearer token y el auto-refresh en 401.
 import type {
   AuthResponse,
+  CheckoutResponse,
+  CrearOrdenRequest,
   Cupon,
   Foto,
   Genero,
@@ -159,6 +161,17 @@ export const catalogApi = {
 export const accountApi = {
   ordenes: () => request<Orden[]>('/ordenes/mias', { auth: true }),
   cupones: () => request<Cupon[]>('/cupones/mios', { auth: true }),
+}
+
+export const orderApi = {
+  crear: (body: CrearOrdenRequest) =>
+    request<CheckoutResponse>('/ordenes', { method: 'POST', body, auth: true }),
+  // Dev: simula la confirmación del pago (reemplaza el webhook de MP).
+  simularPago: (ordenId: string, aprobado: boolean) =>
+    request<{ message: string }>(
+      `/dev/pagos/simular?orden=${ordenId}&aprobado=${aprobado}`,
+      { method: 'POST' },
+    ),
 }
 
 export const adminApi = {

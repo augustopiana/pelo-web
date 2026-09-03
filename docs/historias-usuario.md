@@ -10,7 +10,7 @@
 - [x] E2 — Publicación y gestión de vinilos (dueño)
 - [x] E3 — Catálogo y descubrimiento (cliente)
 - [~] ~~E4 — Seña~~ **ELIMINADA (v0.2)** — no hay seña ni reserva.
-- [ ] E5 — Compra directa (100%) + elección de entrega
+- [x] E5 — Compra directa (100%) + elección de entrega _(flujo completo con gateway de dev; falta cablear MP real — T-34)_
 - [ ] E6 — Entrega (retiro con código / envío por correo)
 - [ ] E7 — Venta walk-in
 - [ ] E8 — Cupones
@@ -106,12 +106,12 @@ Como cliente verificado, quiero comprar uno o varios vinilos pagando el 100%.
 - CA: al aprobarse el pago (**webhook** idempotente), vinilos → `vendido`; si `retiro`, se genera **código de retiro** (R-13); si `envio`, se guardan los datos de envío.
 - CA: **bloqueo de concurrencia** — dos usuarios no compran la misma pieza (**R-11**).
 - CA: elige **modo de entrega** (retiro / envío) en el checkout (**R-14**).
-- [ ] T-32 Entidades/enum de órdenes v0.2 (sin seña) + migración (quitar `senable`, estados, agregar `modo_entrega` y datos de envío)
-- [ ] T-33 Endpoint `POST /ordenes` (compra + modo de entrega)
-- [ ] T-34 Integración MP: pago 100% (Checkout Pro sandbox)
-- [ ] T-35 Webhook MP + confirmación idempotente + generación de código (retiro)
-- [ ] T-36 Bloqueo de concurrencia (R-11)
-- [ ] T-37 UI de checkout (selección de entrega + pago)
+- [x] T-32 Entidades/enum de órdenes v0.2 (sin seña) + migración `V2` (quita `senable`/`RESERVADO`/`tipo`/resolución; agrega `modo_entrega`, datos de envío, `bloqueo_hasta`)
+- [x] T-33 Endpoint `POST /ordenes` (compra + modo de entrega)
+- [~] T-34 Integración MP: pago 100% _(hecho con **gateway de dev** simulado; **Mercado Pago real** — Checkout Pro sandbox — pendiente de credenciales, se activa sin tocar la lógica)_
+- [x] T-35 Confirmación idempotente + generación de código (retiro) _(vía `PaymentGateway`; endpoint dev `POST /dev/pagos/simular`; el webhook MP real queda como stub para cablear)_
+- [x] T-36 Bloqueo de concurrencia (R-11) _(lock pesimista + hold temporal del vinilo)_
+- [x] T-37 UI de checkout (selección de entrega + pago simulado)
 
 ---
 

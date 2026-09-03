@@ -15,7 +15,6 @@ const VACIO = {
   descripcion: '',
   precio: '',
   descuentoCortePct: '0',
-  senable: 'true',
 }
 
 export function PanelViniloFormPage() {
@@ -53,7 +52,6 @@ export function PanelViniloFormPage() {
           descripcion: v.descripcion ?? '',
           precio: v.precio.toString(),
           descuentoCortePct: v.descuentoCortePct.toString(),
-          senable: v.senable ? 'true' : 'false',
         })
         setFotos(v.fotos)
       })
@@ -71,7 +69,6 @@ export function PanelViniloFormPage() {
     descripcion: form.descripcion || null,
     precio: Number(form.precio),
     descuentoCortePct: Number(form.descuentoCortePct),
-    senable: form.senable === 'true',
   })
 
   const submit = async (e: React.FormEvent) => {
@@ -171,13 +168,6 @@ export function PanelViniloFormPage() {
           <div className="field">
             <label>Descuento en corte (%)</label>
             <input className="input" type="number" min="0" max="100" value={form.descuentoCortePct} onChange={(e) => set('descuentoCortePct', e.target.value)} />
-          </div>
-          <div className="field">
-            <label>Modalidad *</label>
-            <select className="input" value={form.senable} onChange={(e) => set('senable', e.target.value)}>
-              <option value="true">Señable (50%)</option>
-              <option value="false">Compra directa (100%)</option>
-            </select>
           </div>
         </div>
         <div className="field">

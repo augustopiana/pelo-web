@@ -19,7 +19,6 @@ public record ViniloDetalleDTO(
         String descripcion,
         BigDecimal precio,
         Integer descuentoCortePct,
-        boolean senable,
         String estado,
         OffsetDateTime fechaPublicacion,
         List<FotoDTO> fotos) {

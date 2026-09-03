@@ -37,12 +37,15 @@ export function CuentaPage() {
 
       <h2 className="upper">Mis órdenes</h2>
       {ordenes.length === 0 ? (
-        <p className="muted">Todavía no tenés órdenes. Cuando señes o compres un vinilo, aparecerán acá.</p>
+        <p className="muted">Todavía no tenés órdenes. Cuando compres un vinilo, aparecerán acá.</p>
       ) : (
         <ul className="ficha__meta">
           {ordenes.map((o) => (
             <li key={o.id}>
-              <span>{o.tipo} · {o.estado}</span>
+              <span>
+                {o.estado} · {o.modoEntrega === 'RETIRO' ? 'Retiro' : 'Envío'}
+                {o.codigoRetiro ? ` · código ${o.codigoRetiro}` : ''}
+              </span>
               <span>{precio(o.total)}</span>
             </li>
           ))}

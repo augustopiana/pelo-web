@@ -90,7 +90,7 @@ public class CatalogService {
                 v.getId(), v.getTitulo(), v.getArtista(), GeneroDTO.from(v.getGenero()),
                 v.getAnio(), v.getSello(), v.getEdicionPais(), v.getFormato().name(),
                 v.getEstadoDisco().name(), v.getDescripcion(), v.getPrecio(),
-                v.getDescuentoCortePct(), v.isSenable(), v.getEstado().name(),
+                v.getDescuentoCortePct(), v.getEstado().name(),
                 v.getFechaPublicacion(), galeria);
     }
 
@@ -113,7 +113,7 @@ public class CatalogService {
                 v.getId(), v.getTitulo(), v.getArtista(),
                 g != null ? g.getNombre() : null,
                 v.getAnio(), v.getPrecio(), v.getEstadoDisco().name(), v.getEstado().name(),
-                v.isSenable(), v.getDescuentoCortePct(), portadaUrl, v.getFechaPublicacion());
+                v.getDescuentoCortePct(), portadaUrl, v.getFechaPublicacion());
     }
 
     private EstadoDisco parseEstadoDisco(String valor) {

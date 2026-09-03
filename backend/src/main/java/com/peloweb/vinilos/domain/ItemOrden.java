@@ -1,11 +1,7 @@
 package com.peloweb.vinilos.domain;
 
-import com.peloweb.vinilos.domain.enums.EstadoItem;
-import com.peloweb.vinilos.domain.enums.MetodoResto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -15,7 +11,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-/** Item de una orden: un vinilo dentro de la orden (spec 4.6). */
+/** Item de una orden: un vinilo comprado (spec 4.6, v0.2). */
 @Entity
 @Table(name = "item_orden")
 public class ItemOrden {
@@ -39,19 +35,6 @@ public class ItemOrden {
     /** Copia del % de descuento en corte al momento de la orden. */
     @Column(name = "descuento_corte_pct", nullable = false)
     private Integer descuentoCortePct;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_item", nullable = false)
-    private EstadoItem estadoItem = EstadoItem.PENDIENTE;
-
-    /** Solo sena. */
-    @Column(name = "resto_pagado", nullable = false)
-    private boolean restoPagado = false;
-
-    /** Nulo hasta que se paga el resto. */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "metodo_resto")
-    private MetodoResto metodoResto;
 
     public UUID getId() {
         return id;
@@ -91,29 +74,5 @@ public class ItemOrden {
 
     public void setDescuentoCortePct(Integer descuentoCortePct) {
         this.descuentoCortePct = descuentoCortePct;
-    }
-
-    public EstadoItem getEstadoItem() {
-        return estadoItem;
-    }
-
-    public void setEstadoItem(EstadoItem estadoItem) {
-        this.estadoItem = estadoItem;
-    }
-
-    public boolean isRestoPagado() {
-        return restoPagado;
-    }
-
-    public void setRestoPagado(boolean restoPagado) {
-        this.restoPagado = restoPagado;
-    }
-
-    public MetodoResto getMetodoResto() {
-        return metodoResto;
-    }
-
-    public void setMetodoResto(MetodoResto metodoResto) {
-        this.metodoResto = metodoResto;
     }
 }

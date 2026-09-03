@@ -1,8 +1,9 @@
 package com.peloweb.vinilos.domain;
 
 import com.peloweb.vinilos.domain.enums.EstadoOrden;
-import com.peloweb.vinilos.domain.enums.TipoOrden;
+import com.peloweb.vinilos.domain.enums.ModoEntrega;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,8 +18,8 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
- * Orden de sena o compra directa (spec 4.5, 5.2).
- * No mezcla vinilos senables y no senables (R-10).
+ * Orden de compra directa (spec 4.5, 5.2, v0.2). Pago 100% online; entrega por
+ * retiro (con código) o envío por correo.
  */
 @Entity
 @Table(name = "orden")
@@ -34,30 +35,35 @@ public class Orden {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoOrden tipo;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private EstadoOrden estado;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total;
 
-    /** Sena (50%) o total (100%). */
     @Column(name = "monto_pagado", precision = 12, scale = 2)
     private BigDecimal montoPagado;
 
-    /** Aleatorio, unico y legible; se genera al confirmarse el pago (R-13). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "modo_entrega", nullable = false)
+    private ModoEntrega modoEntrega;
+
+    /** Aleatorio, único y legible; se genera al confirmarse el pago si es retiro (R-13). */
     @Column(name = "codigo_retiro", unique = true)
     private String codigoRetiro;
 
-    /** Solo sena: creacion + 7 dias (R-2). */
-    @Column(name = "fecha_vencimiento")
-    private OffsetDateTime fechaVencimiento;
+    @Column(name = "fecha_pago")
+    private OffsetDateTime fechaPago;
 
-    /** Cuando se resuelven todos los items. */
-    @Column(name = "fecha_cierre")
-    private OffsetDateTime fechaCierre;
+    /** Retiro: cuando el dueño confirma la entrega. */
+    @Column(name = "fecha_entrega")
+    private OffsetDateTime fechaEntrega;
+
+    /** Envío: cuando el dueño marca que despachó por correo. */
+    @Column(name = "fecha_despacho")
+    private OffsetDateTime fechaDespacho;
+
+    @Embedded
+    private DatosEnvio envio;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
@@ -76,14 +82,6 @@ public class Orden {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
-    }
-
-    public TipoOrden getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoOrden tipo) {
-        this.tipo = tipo;
     }
 
     public EstadoOrden getEstado() {
@@ -110,6 +108,14 @@ public class Orden {
         this.montoPagado = montoPagado;
     }
 
+    public ModoEntrega getModoEntrega() {
+        return modoEntrega;
+    }
+
+    public void setModoEntrega(ModoEntrega modoEntrega) {
+        this.modoEntrega = modoEntrega;
+    }
+
     public String getCodigoRetiro() {
         return codigoRetiro;
     }
@@ -118,20 +124,36 @@ public class Orden {
         this.codigoRetiro = codigoRetiro;
     }
 
-    public OffsetDateTime getFechaVencimiento() {
-        return fechaVencimiento;
+    public OffsetDateTime getFechaPago() {
+        return fechaPago;
     }
 
-    public void setFechaVencimiento(OffsetDateTime fechaVencimiento) {
-        this.fechaVencimiento = fechaVencimiento;
+    public void setFechaPago(OffsetDateTime fechaPago) {
+        this.fechaPago = fechaPago;
     }
 
-    public OffsetDateTime getFechaCierre() {
-        return fechaCierre;
+    public OffsetDateTime getFechaEntrega() {
+        return fechaEntrega;
     }
 
-    public void setFechaCierre(OffsetDateTime fechaCierre) {
-        this.fechaCierre = fechaCierre;
+    public void setFechaEntrega(OffsetDateTime fechaEntrega) {
+        this.fechaEntrega = fechaEntrega;
+    }
+
+    public OffsetDateTime getFechaDespacho() {
+        return fechaDespacho;
+    }
+
+    public void setFechaDespacho(OffsetDateTime fechaDespacho) {
+        this.fechaDespacho = fechaDespacho;
+    }
+
+    public DatosEnvio getEnvio() {
+        return envio;
+    }
+
+    public void setEnvio(DatosEnvio envio) {
+        this.envio = envio;
     }
 
     public OffsetDateTime getCreatedAt() {

@@ -21,7 +21,6 @@ export interface ViniloResumen {
   precio: number
   estadoDisco: string
   estado: string
-  senable: boolean
   descuentoCortePct: number
   portadaUrl: string | null
   fechaPublicacion: string
@@ -40,7 +39,6 @@ export interface ViniloDetalle {
   descripcion: string | null
   precio: number
   descuentoCortePct: number
-  senable: boolean
   estado: string
   fechaPublicacion: string
   fotos: Foto[]
@@ -70,13 +68,33 @@ export interface AuthResponse {
 
 export interface Orden {
   id: string
-  tipo: string
   estado: string
+  modoEntrega: string
   total: number
-  montoPagado: number | null
   codigoRetiro: string | null
-  fechaVencimiento: string | null
   createdAt: string
+}
+
+export type ModoEntrega = 'RETIRO' | 'ENVIO'
+
+export interface Envio {
+  nombre: string
+  telefono: string
+  direccion: string
+  localidad: string
+  provincia: string
+  cp: string
+}
+
+export interface CrearOrdenRequest {
+  viniloIds: string[]
+  modoEntrega: ModoEntrega
+  envio?: Envio | null
+}
+
+export interface CheckoutResponse {
+  ordenId: string
+  checkoutUrl: string
 }
 
 export interface Cupon {
@@ -98,7 +116,6 @@ export interface ViniloFormData {
   descripcion?: string | null
   precio: number
   descuentoCortePct: number
-  senable: boolean
 }
 
 export interface CatalogFiltros {

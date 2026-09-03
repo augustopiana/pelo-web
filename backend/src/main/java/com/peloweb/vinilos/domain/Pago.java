@@ -2,7 +2,6 @@ package com.peloweb.vinilos.domain;
 
 import com.peloweb.vinilos.domain.enums.EstadoPago;
 import com.peloweb.vinilos.domain.enums.MedioPago;
-import com.peloweb.vinilos.domain.enums.TipoPago;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,10 +28,6 @@ public class Pago {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "orden_id", nullable = false)
     private Orden orden;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoPago tipo;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal monto;
@@ -66,14 +61,6 @@ public class Pago {
 
     public void setOrden(Orden orden) {
         this.orden = orden;
-    }
-
-    public TipoPago getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoPago tipo) {
-        this.tipo = tipo;
     }
 
     public BigDecimal getMonto() {

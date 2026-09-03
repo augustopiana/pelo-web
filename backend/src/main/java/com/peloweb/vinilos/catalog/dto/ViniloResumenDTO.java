@@ -14,7 +14,6 @@ public record ViniloResumenDTO(
         BigDecimal precio,
         String estadoDisco,
         String estado,
-        boolean senable,
         Integer descuentoCortePct,
         String portadaUrl,
         OffsetDateTime fechaPublicacion) {

@@ -55,7 +55,6 @@ export function PanelVinilosPage() {
                 <span className="muted">{v.artista}</span>
                 <div className="panel-row__tags">
                   <span className={`tag tag--${v.estado.toLowerCase()}`}>{v.estado}</span>
-                  <span className="tag">{v.senable ? 'Señable' : 'Compra directa'}</span>
                   <span className="muted">{precio(v.precio)}</span>
                 </div>
               </div>

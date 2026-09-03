@@ -8,17 +8,14 @@ import java.util.UUID;
 
 public record OrdenResumenDTO(
         UUID id,
-        String tipo,
         String estado,
+        String modoEntrega,
         BigDecimal total,
-        BigDecimal montoPagado,
         String codigoRetiro,
-        OffsetDateTime fechaVencimiento,
         OffsetDateTime createdAt) {
 
     public static OrdenResumenDTO from(Orden o) {
-        return new OrdenResumenDTO(o.getId(), o.getTipo().name(), o.getEstado().name(),
-                o.getTotal(), o.getMontoPagado(), o.getCodigoRetiro(),
-                o.getFechaVencimiento(), o.getCreatedAt());
+        return new OrdenResumenDTO(o.getId(), o.getEstado().name(), o.getModoEntrega().name(),
+                o.getTotal(), o.getCodigoRetiro(), o.getCreatedAt());
     }
 }

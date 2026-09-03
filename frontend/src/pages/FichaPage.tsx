@@ -85,23 +85,24 @@ export function FichaPage() {
             {v.sello && <li><span>Sello</span><span>{v.sello}</span></li>}
             {v.edicionPais && <li><span>Edición</span><span>{v.edicionPais}</span></li>}
             <li><span>Formato</span><span>{v.formato}</span></li>
-            <li><span>Modalidad</span><span>{v.senable ? 'Seña (50%)' : 'Compra directa (100%)'}</span></li>
           </ul>
 
           {v.descripcion && <p>{v.descripcion}</p>}
 
           <div style={{ marginTop: '1.25rem' }}>
-            <button className="btn btn--neon btn--block" disabled title="Disponible en el próximo milestone (pagos)">
-              {v.senable ? 'Señar' : 'Comprar'} — disponible pronto
-            </button>
-            {!disponible && (
-              <p className="muted" style={{ fontSize: '0.82rem', marginTop: '0.5rem' }}>
-                Este vinilo está {v.estado.toLowerCase()}.
+            {disponible && usuario && (
+              <Link to={`/checkout/${v.id}`} className="btn btn--neon btn--block">
+                Comprar — {precio(v.precio)}
+              </Link>
+            )}
+            {disponible && !usuario && (
+              <p className="muted" style={{ fontSize: '0.85rem' }}>
+                <Link to="/login" className="link-neon">Iniciá sesión</Link> para comprar.
               </p>
             )}
-            {!usuario && (
-              <p className="muted" style={{ fontSize: '0.82rem', marginTop: '0.5rem' }}>
-                <Link to="/login" className="link-neon">Iniciá sesión</Link> para operar cuando estén habilitados los pagos.
+            {!disponible && (
+              <p className="muted" style={{ fontSize: '0.85rem' }}>
+                Este vinilo está {v.estado.toLowerCase()}.
               </p>
             )}
           </div>

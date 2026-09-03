@@ -11,6 +11,8 @@ import { LoginPage } from './pages/LoginPage'
 import { RegistroPage } from './pages/RegistroPage'
 import { VerificarPage } from './pages/VerificarPage'
 import { GlosarioPage } from './pages/GlosarioPage'
+import { CheckoutPage } from './pages/CheckoutPage'
+import { CheckoutSimularPage } from './pages/CheckoutSimularPage'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 
 export const router = createBrowserRouter([
@@ -25,6 +27,22 @@ export const router = createBrowserRouter([
       { path: 'login', element: <LoginPage /> },
       { path: 'registro', element: <RegistroPage /> },
       { path: 'verificar', element: <VerificarPage /> },
+      {
+        path: 'checkout/:viniloId',
+        element: (
+          <ProtectedRoute>
+            <CheckoutPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'checkout/simular',
+        element: (
+          <ProtectedRoute>
+            <CheckoutSimularPage />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: 'cuenta',
         element: (

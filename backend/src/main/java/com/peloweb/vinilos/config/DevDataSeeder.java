@@ -104,37 +104,37 @@ public class DevDataSeeder implements CommandLineRunner {
         int i = 0;
 
         addVinilo("Thriller", "Michael Jackson", "Pop", 1982, "Epic", "Edición original 🇺🇸",
-                EstadoDisco.NEAR_MINT, new BigDecimal("25000"), 10, true, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.NEAR_MINT, new BigDecimal("25000"), 10, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("The Dark Side of the Moon", "Pink Floyd", "Rock", 1973, "Harvest", "Reedición 🇬🇧",
-                EstadoDisco.VG_PLUS, new BigDecimal("32000"), 15, true, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.VG_PLUS, new BigDecimal("32000"), 15, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("Kind of Blue", "Miles Davis", "Jazz", 1959, "Columbia", "Edición 🇺🇸",
-                EstadoDisco.VG, new BigDecimal("28000"), 10, false, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.VG, new BigDecimal("28000"), 10, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("Nevermind", "Nirvana", "Rock", 1991, "DGC", "Edición 🇦🇷",
-                EstadoDisco.MINT, new BigDecimal("30000"), 12, true, EstadoVinilo.RESERVADO, null, now.minusDays(i++));
+                EstadoDisco.MINT, new BigDecimal("30000"), 12, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("Back in Black", "AC/DC", "Rock", 1980, "Atlantic", "Edición original 🇦🇷 1980",
-                EstadoDisco.VG_PLUS_PLUS, new BigDecimal("27000"), 10, true, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.VG_PLUS_PLUS, new BigDecimal("27000"), 10, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("Rumours", "Fleetwood Mac", "Rock", 1977, "Warner", "Edición 🇺🇸",
-                EstadoDisco.GOOD, new BigDecimal("22000"), 8, false, EstadoVinilo.VENDIDO, now.minusDays(5), now.minusDays(i++));
+                EstadoDisco.GOOD, new BigDecimal("22000"), 8, EstadoVinilo.VENDIDO, now.minusDays(5), now.minusDays(i++));
         addVinilo("Abbey Road", "The Beatles", "Rock", 1969, "Apple", "Reedición 🇬🇧",
-                EstadoDisco.NEAR_MINT, new BigDecimal("45000"), 20, true, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.NEAR_MINT, new BigDecimal("45000"), 20, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("Cantora", "Mercedes Sosa", "Folklore", 2009, "Sony", "Edición 🇦🇷",
-                EstadoDisco.VG_PLUS, new BigDecimal("18000"), 10, true, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.VG_PLUS, new BigDecimal("18000"), 10, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("The Blues", "B.B. King", "Blues", 1960, "Crown", "Edición 🇺🇸",
-                EstadoDisco.VG, new BigDecimal("20000"), 10, false, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.VG, new BigDecimal("20000"), 10, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
         addVinilo("Random Access Memories", "Daft Punk", "Electrónica", 2013, "Columbia", "Edición 🇪🇺",
-                EstadoDisco.MINT, new BigDecimal("35000"), 15, true, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
+                EstadoDisco.MINT, new BigDecimal("35000"), 15, EstadoVinilo.DISPONIBLE, null, now.minusDays(i++));
 
         // Casos para verificar la visibilidad (R-9): NO deben aparecer en el catalogo.
         addVinilo("Vendido Viejo", "Artista X", "Rock", 1975, null, null,
-                EstadoDisco.VG, new BigDecimal("15000"), 5, false, EstadoVinilo.VENDIDO, now.minusDays(40), now.minusDays(i++));
+                EstadoDisco.VG, new BigDecimal("15000"), 5, EstadoVinilo.VENDIDO, now.minusDays(40), now.minusDays(i++));
         addVinilo("Pausado Test", "Artista Y", "Jazz", 1968, null, null,
-                EstadoDisco.VG_PLUS, new BigDecimal("16000"), 5, true, EstadoVinilo.PAUSADO, null, now.minusDays(i++));
+                EstadoDisco.VG_PLUS, new BigDecimal("16000"), 5, EstadoVinilo.PAUSADO, null, now.minusDays(i++));
 
         log.info("[seed] {} vinilos creados (2 ocultos por R-9: vendido +30d y pausado)", i);
     }
 
     private void addVinilo(String titulo, String artista, String genero, int anio, String sello, String edicionPais,
-                           EstadoDisco estadoDisco, BigDecimal precio, int descuentoCortePct, boolean senable,
+                           EstadoDisco estadoDisco, BigDecimal precio, int descuentoCortePct,
                            EstadoVinilo estado, OffsetDateTime fechaVenta, OffsetDateTime fechaPublicacion) {
         Vinilo v = new Vinilo();
         v.setId(UUID.randomUUID());
@@ -149,7 +149,6 @@ public class DevDataSeeder implements CommandLineRunner {
         v.setDescripcion("Disco de " + artista + " en muy buen estado. Ejemplo de datos de prueba (dev).");
         v.setPrecio(precio);
         v.setDescuentoCortePct(descuentoCortePct);
-        v.setSenable(senable);
         v.setEstado(estado);
         v.setFechaVenta(fechaVenta);
         v.setFechaPublicacion(fechaPublicacion);

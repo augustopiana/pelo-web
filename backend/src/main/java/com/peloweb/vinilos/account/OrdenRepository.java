@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface OrdenRepository extends JpaRepository<Orden, UUID> {
 
     List<Orden> findByUsuario_IdOrderByCreatedAtDesc(UUID usuarioId);
+
+    boolean existsByCodigoRetiro(String codigoRetiro);
 }

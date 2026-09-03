@@ -3,7 +3,7 @@ import type { ViniloResumen } from '../lib/types'
 import { precio } from '../lib/format'
 import { GoldmineBadge } from './GoldmineBadge'
 
-/** Tarjeta del catalogo: portada, badges de estado/senable y datos basicos. */
+/** Tarjeta del catalogo: portada, badge de estado y datos basicos. */
 export function ViniloCard({ v }: { v: ViniloResumen }) {
   return (
     <Link to={`/catalogo/${v.id}`} className="vinilo-card">
@@ -12,9 +12,6 @@ export function ViniloCard({ v }: { v: ViniloResumen }) {
           <img src={v.portadaUrl} alt={`${v.titulo} — ${v.artista}`} loading="lazy" />
         ) : null}
         {estadoBadge(v.estado)}
-        <span className={v.senable ? 'badge badge--senable' : 'badge badge--directa'}>
-          {v.senable ? 'Señable' : 'Compra'}
-        </span>
       </div>
       <div className="vinilo-card__body">
         <span className="vinilo-card__title">{v.titulo}</span>
@@ -29,7 +26,6 @@ export function ViniloCard({ v }: { v: ViniloResumen }) {
 }
 
 function estadoBadge(estado: string) {
-  if (estado === 'RESERVADO') return <span className="badge badge--reservado">Reservado</span>
   if (estado === 'VENDIDO') return <span className="badge badge--vendido">Vendido</span>
   return null
 }

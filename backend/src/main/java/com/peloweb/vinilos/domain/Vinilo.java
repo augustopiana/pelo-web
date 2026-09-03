@@ -64,13 +64,13 @@ public class Vinilo {
     @Column(name = "descuento_corte_pct", nullable = false)
     private Integer descuentoCortePct = 0;
 
-    /** true: solo se puede senar. false: solo compra directa (spec 4.2, R-10). */
-    @Column(nullable = false)
-    private boolean senable;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoVinilo estado = EstadoVinilo.DISPONIBLE;
+
+    /** Hold temporal mientras un cliente paga (R-11): reservado hasta esta fecha; null = libre. */
+    @Column(name = "bloqueo_hasta")
+    private OffsetDateTime bloqueoHasta;
 
     @Column(name = "fecha_publicacion", nullable = false)
     private OffsetDateTime fechaPublicacion;
@@ -186,20 +186,20 @@ public class Vinilo {
         this.descuentoCortePct = descuentoCortePct;
     }
 
-    public boolean isSenable() {
-        return senable;
-    }
-
-    public void setSenable(boolean senable) {
-        this.senable = senable;
-    }
-
     public EstadoVinilo getEstado() {
         return estado;
     }
 
     public void setEstado(EstadoVinilo estado) {
         this.estado = estado;
+    }
+
+    public OffsetDateTime getBloqueoHasta() {
+        return bloqueoHasta;
+    }
+
+    public void setBloqueoHasta(OffsetDateTime bloqueoHasta) {
+        this.bloqueoHasta = bloqueoHasta;
     }
 
     public OffsetDateTime getFechaPublicacion() {

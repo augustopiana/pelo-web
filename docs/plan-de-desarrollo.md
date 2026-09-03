@@ -71,9 +71,11 @@ Alcance: HU-12 + elección de entrega en el checkout.
 - Órdenes (100%), integración Mercado Pago en **sandbox**, confirmación por **webhook** (idempotente), **bloqueo de concurrencia** (pieza única, R-11), elección de **modo de entrega** (retiro / envío + datos de dirección) y generación de **código de retiro** (solo retiro, R-13).
 
 **Criterios de salida:**
-- [ ] Comprar deja el vinilo `vendido` **solo tras webhook aprobado**; si es retiro, con código generado; si es envío, con los datos de envío guardados.
-- [ ] Dos usuarios no pueden comprar la misma pieza (R-11).
-- [ ] Un pago rechazado deja la orden `cancelada` y libera el vinilo.
+- [x] Comprar deja el vinilo `vendido` **solo tras el pago aprobado**; si es retiro, con código generado; si es envío, con los datos de envío guardados.
+- [x] Dos usuarios no pueden comprar la misma pieza (R-11).
+- [x] Un pago rechazado deja la orden `cancelada` y libera el vinilo.
+
+> **Cerrado** en `v0.5.0` (2026-09-02) con **gateway de dev** (pago simulado + confirmación idempotente). Verificado E2E: crear orden (retiro/envío) → R-11 (409 en doble compra) → pago aprobado (vendido + código R-13) → idempotencia → rechazo (cancelada + liberado) → R-12 (403 sin verificar) → checkout en la UI. **Pendiente:** cablear **Mercado Pago real** (Checkout Pro sandbox) — se activa con credenciales sin tocar la lógica (T-34). Ver `registro-releases.md`.
 
 ---
 

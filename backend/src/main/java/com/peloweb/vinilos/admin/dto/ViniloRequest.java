@@ -21,6 +21,5 @@ public record ViniloRequest(
         @NotNull EstadoDisco estadoDisco,
         String descripcion,
         @NotNull @DecimalMin("0.0") BigDecimal precio,
-        @NotNull @Min(0) @Max(100) Integer descuentoCortePct,
-        @NotNull Boolean senable) {
+        @NotNull @Min(0) @Max(100) Integer descuentoCortePct) {
 }

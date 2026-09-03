@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/health", "/actuator/health").permitAll()
                         .requestMatchers("/auth/register", "/auth/login", "/auth/verify",
                                 "/auth/refresh", "/auth/google").permitAll()
+                        // Webhook de MP (sin auth) y simulación de pago en dev.
+                        .requestMatchers("/webhooks/**", "/dev/**").permitAll()
                         // Catalogo publico (solo lectura).
                         .requestMatchers(HttpMethod.GET, "/vinilos", "/vinilos/**", "/generos").permitAll()
                         // Gestion del dueno: escritura de vinilos, fotos y generos -> ADMIN.

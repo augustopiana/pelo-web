@@ -174,7 +174,6 @@ public class AdminViniloService {
         v.setDescripcion(r.descripcion());
         v.setPrecio(r.precio());
         v.setDescuentoCortePct(r.descuentoCortePct());
-        v.setSenable(r.senable());
         v.setUpdatedAt(OffsetDateTime.now());
     }
 
@@ -192,7 +191,7 @@ public class AdminViniloService {
         return new ViniloResumenDTO(v.getId(), v.getTitulo(), v.getArtista(),
                 v.getGenero() != null ? v.getGenero().getNombre() : null,
                 v.getAnio(), v.getPrecio(), v.getEstadoDisco().name(), v.getEstado().name(),
-                v.isSenable(), v.getDescuentoCortePct(), portada, v.getFechaPublicacion());
+                v.getDescuentoCortePct(), portada, v.getFechaPublicacion());
     }
 
     private ViniloDetalleDTO toDetalle(Vinilo v) {
@@ -201,6 +200,6 @@ public class AdminViniloService {
         return new ViniloDetalleDTO(v.getId(), v.getTitulo(), v.getArtista(), GeneroDTO.from(v.getGenero()),
                 v.getAnio(), v.getSello(), v.getEdicionPais(), v.getFormato().name(),
                 v.getEstadoDisco().name(), v.getDescripcion(), v.getPrecio(), v.getDescuentoCortePct(),
-                v.isSenable(), v.getEstado().name(), v.getFechaPublicacion(), galeria);
+                v.getEstado().name(), v.getFechaPublicacion(), galeria);
     }
 }
