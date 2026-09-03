@@ -44,6 +44,32 @@
 
 ## Historial
 
+## [0.6.0] — 2026-09-02 — Milestone 4: entrega (retiro/envío) + venta walk-in
+
+### Agregado
+- **Entrega (E6).** `GET /admin/ordenes` (lista con cliente, ítems y envío), `GET /retiros/{codigo}` (buscar por código), `POST /retiros/{codigo}/entregar` (retiro → `ENTREGADA`), `POST /admin/ordenes/{id}/despachar` (envío → `ENVIADA`). Validan estado/modo (solo `PAGADA`, y retiro↔envío correcto).
+- **Venta walk-in (E7).** `POST /vinilos/{id}/venta-efectivo` (R-7: solo `DISPONIBLE`) → `VENDIDO` sin orden online. Respeta el hold de checkout (no vende una pieza en compra online).
+- **Panel del dueño:** página de **Retiro** (ingresar código → confirmar entrega), página de **Órdenes** (lista + datos de envío + marcar despachado), y botón **Venta efectivo** en la lista de vinilos. Home del panel con accesos.
+- Todo bajo `ROLE_ADMIN` (`/retiros/**` y `/admin/**`).
+
+### Migraciones / BD
+- Ninguna (el modelo v0.2 de M3 ya cubre entrega/estados).
+
+### Historias completadas
+- **HU-13** (retiro/entrega), **HU-14** (despacho de envío), **HU-15** (walk-in). Épicas **E6** y **E7** cerradas. Ver `historias-usuario.md`.
+
+### Criterios de salida (M4)
+- [x] Ingresar código y confirmar entrega → `entregada`.
+- [x] Ver datos de envío y marcar `enviada`.
+- [x] Walk-in saca el vinilo del catálogo al instante.
+
+### Verificación
+- E2E (curl + navegador): retiro (buscar → entregar), envío (dirección → despachar), walk-in (disponible → vendido), y auth ADMIN (cliente 403).
+
+### Próximo paso (desde dónde seguir)
+- **Milestone 5 — Pedidos de búsqueda (`v0.7.0`)**: el cliente pide un disco que no está; el dueño lo resuelve (encontrado/no encontrado) con aviso al cliente.
+- Pendiente transversal: cablear **Mercado Pago real** (T-34).
+
 ## [0.5.0] — 2026-09-02 — Milestone 3: compra directa (pago con gateway de dev)
 
 ### Agregado

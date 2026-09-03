@@ -7,6 +7,8 @@ import { PanelPage } from './pages/PanelPage'
 import { PanelVinilosPage } from './pages/panel/PanelVinilosPage'
 import { PanelViniloFormPage } from './pages/panel/PanelViniloFormPage'
 import { PanelGenerosPage } from './pages/panel/PanelGenerosPage'
+import { PanelOrdenesPage } from './pages/panel/PanelOrdenesPage'
+import { PanelRetiroPage } from './pages/panel/PanelRetiroPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegistroPage } from './pages/RegistroPage'
 import { VerificarPage } from './pages/VerificarPage'
@@ -88,6 +90,22 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute adminOnly>
             <PanelGenerosPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'panel/ordenes',
+        element: (
+          <ProtectedRoute adminOnly>
+            <PanelOrdenesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'panel/retiros',
+        element: (
+          <ProtectedRoute adminOnly>
+            <PanelRetiroPage />
           </ProtectedRoute>
         ),
       },

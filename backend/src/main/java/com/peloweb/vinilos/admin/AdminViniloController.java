@@ -63,6 +63,12 @@ public class AdminViniloController {
         return service.togglePausa(id);
     }
 
+    /** Venta en efectivo walk-in (Flujo D). */
+    @PostMapping("/vinilos/{id}/venta-efectivo")
+    public ViniloDetalleDTO ventaEfectivo(@PathVariable UUID id) {
+        return service.ventaEfectivo(id);
+    }
+
     @PostMapping(value = "/vinilos/{id}/fotos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<FotoDTO> subirFotos(@PathVariable UUID id, @RequestParam("files") MultipartFile[] files) {
         return service.subirFotos(id, files);

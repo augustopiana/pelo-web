@@ -29,6 +29,16 @@ export function PanelVinilosPage() {
     }
   }
 
+  const ventaEfectivo = async (id: string, titulo: string) => {
+    if (!confirm(`¿Vender "${titulo}" en efectivo (walk-in)? Se marca como vendido.`)) return
+    try {
+      const v = await adminApi.ventaEfectivo(id)
+      setVinilos((prev) => prev.map((x) => (x.id === id ? { ...x, estado: v.estado } : x)))
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'No se pudo vender')
+    }
+  }
+
   return (
     <section>
       <div className="panel-head">
@@ -63,6 +73,11 @@ export function PanelVinilosPage() {
                 {(v.estado === 'DISPONIBLE' || v.estado === 'PAUSADO') && (
                   <button className="btn" onClick={() => togglePausa(v.id)}>
                     {v.estado === 'PAUSADO' ? 'Reactivar' : 'Pausar'}
+                  </button>
+                )}
+                {v.estado === 'DISPONIBLE' && (
+                  <button className="btn" onClick={() => ventaEfectivo(v.id, v.titulo)} title="Venta en efectivo en el local">
+                    Venta efectivo
                   </button>
                 )}
               </div>

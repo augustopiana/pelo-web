@@ -53,9 +53,10 @@ public class SecurityConfig {
                         .requestMatchers("/webhooks/**", "/dev/**").permitAll()
                         // Catalogo publico (solo lectura).
                         .requestMatchers(HttpMethod.GET, "/vinilos", "/vinilos/**", "/generos").permitAll()
-                        // Gestion del dueno: escritura de vinilos, fotos y generos -> ADMIN.
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/vinilos", "/vinilos/*/fotos", "/generos").hasRole("ADMIN")
+                        // Gestion del dueno: escritura de vinilos, fotos, generos, retiros -> ADMIN.
+                        .requestMatchers("/admin/**", "/retiros/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/vinilos", "/vinilos/*/fotos",
+                                "/vinilos/*/venta-efectivo", "/generos").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/vinilos/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/vinilos/*/pausar").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/vinilos/*/fotos/*").hasRole("ADMIN")

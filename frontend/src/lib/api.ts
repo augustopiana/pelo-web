@@ -7,6 +7,7 @@ import type {
   Foto,
   Genero,
   Orden,
+  OrdenAdmin,
   PageResponse,
   Usuario,
   ViniloDetalle,
@@ -190,6 +191,16 @@ export const adminApi = {
   borrarFoto: (id: string, fotoId: string) =>
     request<void>(`/vinilos/${id}/fotos/${fotoId}`, { method: 'DELETE', auth: true }),
   crearGenero: (nombre: string) => request<Genero>('/generos', { method: 'POST', body: { nombre }, auth: true }),
+  // Órdenes / entrega (M4)
+  listOrdenes: (page = 0, size = 50) =>
+    request<PageResponse<OrdenAdmin>>(`/admin/ordenes?page=${page}&size=${size}`, { auth: true }),
+  buscarRetiro: (codigo: string) => request<OrdenAdmin>(`/retiros/${encodeURIComponent(codigo)}`, { auth: true }),
+  entregar: (codigo: string) =>
+    request<OrdenAdmin>(`/retiros/${encodeURIComponent(codigo)}/entregar`, { method: 'POST', auth: true }),
+  despachar: (ordenId: string) =>
+    request<OrdenAdmin>(`/admin/ordenes/${ordenId}/despachar`, { method: 'POST', auth: true }),
+  ventaEfectivo: (viniloId: string) =>
+    request<ViniloDetalle>(`/vinilos/${viniloId}/venta-efectivo`, { method: 'POST', auth: true }),
 }
 
 export interface HealthResponse {

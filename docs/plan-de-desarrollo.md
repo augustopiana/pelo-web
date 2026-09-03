@@ -87,9 +87,11 @@ Alcance: HU-13 (retiro/entrega), HU-14 (despacho de envío), HU-15 (walk-in).
 - Ingreso de código y confirmación de entrega (retiro); marcar orden como despachada (envío); venta en efectivo walk-in sobre disponibles.
 
 **Criterios de salida:**
-- [ ] El dueño ingresa un código y confirma la entrega → orden `entregada`.
-- [ ] El dueño ve los datos de envío y marca la orden `enviada`.
-- [ ] La venta walk-in saca el vinilo del catálogo al instante.
+- [x] El dueño ingresa un código y confirma la entrega → orden `entregada`.
+- [x] El dueño ve los datos de envío y marca la orden `enviada`.
+- [x] La venta walk-in saca el vinilo del catálogo al instante.
+
+> **Cerrado** en `v0.6.0` (2026-09-02). Verificado E2E: retiro (buscar código → confirmar entrega → `entregada`), envío (ver dirección → despachar → `enviada`), walk-in (`disponible` → `vendido`, respetando el hold de checkout), y autorización ADMIN. Ver `registro-releases.md`.
 
 ---
 

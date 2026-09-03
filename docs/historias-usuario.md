@@ -11,8 +11,8 @@
 - [x] E3 — Catálogo y descubrimiento (cliente)
 - [~] ~~E4 — Seña~~ **ELIMINADA (v0.2)** — no hay seña ni reserva.
 - [x] E5 — Compra directa (100%) + elección de entrega _(flujo completo con gateway de dev; falta cablear MP real — T-34)_
-- [ ] E6 — Entrega (retiro con código / envío por correo)
-- [ ] E7 — Venta walk-in
+- [x] E6 — Entrega (retiro con código / envío por correo)
+- [x] E7 — Venta walk-in
 - [ ] E8 — Cupones
 - [ ] E9 — Jobs automáticos
 - [ ] E10 — Notificaciones
@@ -120,15 +120,15 @@ Como cliente verificado, quiero comprar uno o varios vinilos pagando el 100%.
 ### HU-13 — Confirmar entrega (retiro en el local)
 Como dueño, quiero ingresar el código de retiro y confirmar la entrega.
 - CA: ingreso el código → veo la orden y sus vinilos → **Confirmar entrega** → orden `entregada` (Flujo B).
-- [ ] T-38 Endpoint `POST /retiros/{codigo}` (buscar orden) + `POST /retiros/{codigo}/entregar`
-- [ ] T-39 UI de retiro y entrega en el panel
+- [x] T-38 Endpoint `GET /retiros/{codigo}` (buscar) + `POST /retiros/{codigo}/entregar` + `GET /admin/ordenes`
+- [x] T-39 UI de retiro y entrega en el panel
 
 ### HU-14 — Despachar envío por correo
 Como dueño, quiero ver los datos de envío de una orden y marcarla como despachada.
 - CA: la orden `envio` muestra la dirección; al despacharla → orden `enviada` (Flujo C).
 - CA: el despacho es **manual** (el dueño va al correo); integración con Correo Argentino/OCA = futuro (D-7).
-- [ ] T-40 Endpoint `POST /admin/ordenes/{id}/despachar`
-- [ ] T-41 UI de envíos en el panel (ver dirección + marcar despachado)
+- [x] T-40 Endpoint `POST /admin/ordenes/{id}/despachar`
+- [x] T-41 UI de envíos en el panel (ver dirección + marcar despachado)
 
 ---
 
@@ -137,8 +137,8 @@ Como dueño, quiero ver los datos de envío de una orden y marcarla como despach
 ### HU-15 — Vender en efectivo en el local
 Como dueño, quiero marcar un vinilo disponible como vendido en efectivo (**Flujo E**).
 - CA: solo sobre `disponible` (**R-7**); sale del catálogo de inmediato.
-- [ ] T-41 Endpoint `POST /vinilos/{id}/venta-efectivo`
-- [ ] T-42 UI de venta walk-in
+- [x] T-59 Endpoint `POST /vinilos/{id}/venta-efectivo` _(también respeta el hold de checkout online)_
+- [x] T-60 UI de venta walk-in _(botón "Venta efectivo" en la lista del panel)_
 
 ---
 

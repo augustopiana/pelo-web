@@ -13,7 +13,7 @@
 
     <groupId>com.peloweb</groupId>
     <artifactId>vinilos</artifactId>
-    <version>0.5.0</version>
+    <version>0.6.0</version>
     <name>vinilos</name>
     <description>Modulo de venta de vinilos - pelo-web</description>
 

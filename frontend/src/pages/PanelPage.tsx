@@ -12,15 +12,23 @@ export function PanelPage() {
       <div className="panel-cards">
         <Link to="/panel/vinilos" className="panel-card">
           <strong>Vinilos</strong>
-          <span className="muted">Cargar, editar, subir fotos, pausar/reactivar.</span>
+          <span className="muted">Cargar, editar, fotos, pausar/reactivar y venta walk-in.</span>
+        </Link>
+        <Link to="/panel/ordenes" className="panel-card">
+          <strong>Órdenes</strong>
+          <span className="muted">Ver compras; despachar envíos.</span>
+        </Link>
+        <Link to="/panel/retiros" className="panel-card">
+          <strong>Retiro</strong>
+          <span className="muted">Ingresar código y confirmar entrega.</span>
         </Link>
         <Link to="/panel/generos" className="panel-card">
           <strong>Géneros</strong>
           <span className="muted">Administrar la lista de géneros.</span>
         </Link>
         <div className="panel-card panel-card--soon">
-          <strong>Dashboard y retiros</strong>
-          <span className="muted">Próximamente (Milestone 3+).</span>
+          <strong>Dashboard</strong>
+          <span className="muted">Métricas — próximamente (M7).</span>
         </div>
       </div>
     </section>

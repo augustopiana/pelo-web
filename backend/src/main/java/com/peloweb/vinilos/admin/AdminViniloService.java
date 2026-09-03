@@ -102,6 +102,26 @@ public class AdminViniloService {
         return toDetalle(v);
     }
 
+    /** Venta en efectivo en el local (walk-in, Flujo D). Solo sobre disponibles (R-7); sin orden online. */
+    @Transactional
+    public ViniloDetalleDTO ventaEfectivo(UUID id) {
+        Vinilo v = vinilos.findByIdForUpdate(id)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Vinilo no encontrado"));
+        if (v.getEstado() != EstadoVinilo.DISPONIBLE) {
+            throw new ApiException(HttpStatus.CONFLICT,
+                    "Solo se puede vender en efectivo un vinilo disponible (estado " + v.getEstado() + ")");
+        }
+        if (v.getBloqueoHasta() != null && v.getBloqueoHasta().isAfter(OffsetDateTime.now())) {
+            throw new ApiException(HttpStatus.CONFLICT,
+                    "Está en proceso de compra online: " + v.getTitulo());
+        }
+        v.setEstado(EstadoVinilo.VENDIDO);
+        v.setFechaVenta(OffsetDateTime.now());
+        v.setBloqueoHasta(null);
+        vinilos.save(v);
+        return toDetalle(v);
+    }
+
     @Transactional
     public List<FotoDTO> subirFotos(UUID id, MultipartFile[] archivos) {
         Vinilo v = cargar(id);

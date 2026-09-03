@@ -97,6 +97,30 @@ export interface CheckoutResponse {
   checkoutUrl: string
 }
 
+export interface ItemLinea {
+  viniloId: string
+  titulo: string
+  artista: string
+  precio: number
+}
+
+export interface OrdenAdmin {
+  id: string
+  estado: string
+  modoEntrega: string
+  total: number
+  codigoRetiro: string | null
+  createdAt: string
+  fechaPago: string | null
+  fechaEntrega: string | null
+  fechaDespacho: string | null
+  clienteNombre: string
+  clienteEmail: string
+  clienteTelefono: string | null
+  envio: Envio | null
+  items: ItemLinea[]
+}
+
 export interface Cupon {
   id: string
   porcentaje: number
