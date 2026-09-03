@@ -44,6 +44,24 @@
 
 ## Historial
 
+## [sin versión] — 2026-08-04 — Cambio de alcance: spec v0.2 (sin seña + entrega + pedidos de búsqueda)
+
+> Cambio de dominio hablado con el dueño. **Solo documentación** (sin código todavía); se replantean los milestones siguientes.
+
+### Cambiado (dominio)
+- **Se elimina la seña / reserva.** El único modo de venta online es la **compra directa** (100%). Se van: reserva, vencimiento a 7 días, rechazo al probar, cancelación de reserva, job de vencimiento; estado `Vinilo.reservado`; `Orden.tipo`; resolución ítem por ítem; `Pago.tipo`; reglas R-1…R-5 y R-10; flujos A/C/F viejos. Se elimina el campo `Vinilo.senable`.
+- **Entrega (R-14):** el cliente elige **retiro en el local** (con código) o **envío por correo** (despacho manual del dueño; el pago online cubre solo el disco). Se agregan `Orden.modoEntrega` y datos de envío.
+- **Pedidos de búsqueda (R-15):** nueva entidad `PedidoBusqueda`; el cliente pide un disco que no está, el dueño recibe notificación y lo resuelve (encontrado/no encontrado) con email automático al cliente.
+
+### Documentos actualizados
+- `spec-modulo-vinilos.md` → **v0.2** (entidades, estados, reglas, flujos, catálogo, panel, notificaciones, decisiones D-4/D-5/D-6/D-7).
+- `documentacion-tecnica.md` → enums, integración MP (100%), jobs (sin vencimiento), endpoints.
+- `plan-de-desarrollo.md` → M3 (compra), M4 (entrega+walk-in), M5 (pedidos de búsqueda), M6 (cupones/jobs/notif), M7 (panel/hardening).
+- `historias-usuario.md` → E4 eliminada; E5/E6 replanteadas; E12 (pedidos de búsqueda) agregada; jobs sin vencimiento.
+
+### Próximo paso
+- **Milestone 3 — Compra directa (`v0.5.0`)**: adaptar el modelo de órdenes (migración v0.2), `POST /ordenes` con modo de entrega, MP sandbox (Checkout Pro) + webhook idempotente, bloqueo de concurrencia (R-11), código de retiro (R-13), checkout en el frontend.
+
 ## [0.4.0] — 2026-08-04 — Milestone 2: gestión de vinilos del dueño
 
 ### Agregado

@@ -1,7 +1,9 @@
 # Especificación — Módulo de Venta de Vinilos
 
-> Borrador v0.1 — insumo para Spec Driven Development (SDD)
+> Borrador v0.2 — insumo para Spec Driven Development (SDD)
 > Alcance de este documento: **únicamente el módulo de vinilos**. El módulo de turnos/peluquería se especifica por separado, pero se dejan preparados los puntos de contacto (cupones de descuento en corte).
+>
+> **Cambio de alcance (v0.2):** se elimina la **seña/reserva**. El único modo de venta online es la **compra directa** (100%). Se agrega la **entrega por retiro en el local o envío por correo**, y los **pedidos de búsqueda** de vinilos que no están en el catálogo.
 
 ---
 
@@ -10,11 +12,13 @@
 Hoy el dueño publica y vende vinilos por Instagram y cierra la venta por DM. El objetivo del sistema es reemplazar ese flujo con una web que ofrezca:
 
 - Un **catálogo público** ordenado, con buscador y filtros.
-- **Stock real**: cada disco es una pieza única que se marca reservada/vendida automáticamente.
-- **Cobro online** de señas y compras vía Mercado Pago.
-- Un **panel** para que el dueño cargue discos y gestione reservas, ventas y retiros.
+- **Stock real**: cada disco es una pieza única que se marca vendida automáticamente.
+- **Cobro online** de las compras vía Mercado Pago.
+- **Entrega** por retiro en el local o envío por correo.
+- **Pedidos de búsqueda**: si un cliente no encuentra un disco, lo pide y el dueño intenta conseguirlo.
+- Un **panel** para que el dueño cargue discos y gestione ventas, entregas y pedidos.
 
-El diferencial frente a Instagram es: catálogo navegable, control de stock, cobro automático de seña y trazabilidad de cada operación.
+El diferencial frente a Instagram es: catálogo navegable, control de stock, cobro automático y trazabilidad de cada operación.
 
 ---
 
@@ -24,19 +28,18 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 - Catálogo público con búsqueda, filtros y orden.
 - Cuentas de cliente (email+contraseña y Google), con verificación de email.
 - Publicación y gestión de vinilos (pieza única).
-- Flujo de **seña** (50%, con prueba en el local).
-- Flujo de **compra directa** (100%, sin prueba).
+- Flujo de **compra directa** (100%, venta final).
 - Flujo de **venta en efectivo en el local** (walk-in).
-- Retiro con **código** y resolución por vinilo.
+- **Entrega**: retiro en el local con **código**, o **envío por correo** (despacho manual del dueño).
+- **Pedidos de búsqueda** de vinilos no encontrados (solo clientes con cuenta).
 - **Cupones** de descuento en corte de pelo (se generan acá; se redimen en el futuro módulo de turnos).
-- Panel del dueño con dashboard, gestión de discos y de órdenes.
-- Notificaciones: aviso en panel + email (al dueño) y email de confirmación (al cliente).
-- Solo **retiro en el local**.
+- Panel del dueño con dashboard, gestión de discos, órdenes, entregas y pedidos.
+- Notificaciones: aviso en panel + email (al dueño) y emails al cliente (confirmación, vinilo encontrado).
 - Comprobante interno de la operación.
 
 ### Fuera del MVP (fases futuras)
 - Módulo de turnos/peluquería y **redención** de los cupones.
-- **Envío por correo** (a todo el país o por zona).
+- **Integración con la API de Correo Argentino / OCA** (cotización de envío, etiquetas, tracking). En el MVP el envío es **manual**: la app guarda la dirección y el dueño despacha; el pago online cubre solo el precio del disco.
 - **Carga por IA**: foto de tapa/contratapa → autocompletado de campos; el dueño solo pone precio y corrige.
 - **WhatsApp automático** al dueño (fase 2, si el dueño lo aprueba; requiere API de WhatsApp Business con costo mensual).
 - **CDs y cassettes** (el modelo deja el campo `formato` preparado).
@@ -48,9 +51,9 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 
 | Rol | Descripción | Capacidades |
 |-----|-------------|-------------|
-| **Visitante** | No autenticado | Ver catálogo, buscar, filtrar, ver ficha. No puede señar/comprar. |
-| **Cliente** | Cuenta verificada | Señar, comprar, ver sus órdenes/estados/cupones, cancelar reservas antes de probar. |
-| **Dueño / Admin** | Único administrador en el MVP | CRUD de vinilos, gestión de órdenes y retiros, ventas walk-in, reembolsos, dashboard. |
+| **Visitante** | No autenticado | Ver catálogo, buscar, filtrar, ver ficha. No puede comprar ni pedir búsquedas. |
+| **Cliente** | Cuenta verificada | Comprar, elegir entrega (retiro/envío), ver sus órdenes y cupones, crear **pedidos de búsqueda** y ver su estado. |
+| **Dueño / Admin** | Único administrador en el MVP | CRUD de vinilos, gestión de órdenes, entregas y envíos, ventas walk-in, resolución de pedidos de búsqueda, reembolsos, dashboard. |
 
 > En el MVP el dueño es el único admin. El modelo de datos deja `rol` como campo extensible para sumar más operadores en el futuro.
 
@@ -67,7 +70,7 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 | email_verificado | bool | requerido en `true` para operar |
 | password_hash | texto | nulo si es solo Google |
 | google_id | texto | nulo si es solo email/contraseña |
-| telefono | texto | opcional |
+| telefono | texto | opcional; usado como contacto para pedidos de búsqueda y envíos |
 | rol | enum | `cliente` / `admin` |
 | created_at | timestamp | |
 
@@ -83,16 +86,15 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 | edicion_pais | texto | ej. "Edición original 🇦🇷 1986" |
 | formato | enum | `vinilo` (fijo en MVP; preparado para `cd`, `cassette`) |
 | estado_disco | enum | estado general del disco; **escala Goldmine**: `Mint (M)`, `Near Mint (NM)`, `VG++`, `VG+`, `VG`, `Good (G)`, `Poor (P)` |
-| descripcion | texto largo | libre (acá pueden ir detalles de tapa/sobre si el dueño quiere) |
+| descripcion | texto largo | libre |
 | precio | decimal (ARS) | público |
 | descuento_corte_pct | entero | % de descuento en corte que otorga este vinilo (ej. 15) |
-| senable | bool | `true`: solo se puede señar. `false`: solo compra directa. |
-| estado | enum | `disponible` / `reservado` / `vendido` / `pausado` |
+| estado | enum | `disponible` / `vendido` / `pausado` |
 | fecha_publicacion | timestamp | usado para orden "más nuevos" |
 | fecha_venta | timestamp | se setea al marcar vendido; controla el ocultamiento a 30 días |
 | created_at / updated_at | timestamp | |
 
-> **Regla clave:** `senable` bifurca el modo de compra. Un vinilo señable **solo** admite seña; uno no señable **solo** admite compra directa online. Ambos, además, pueden venderse en efectivo walk-in mientras estén `disponible`.
+> **Cambio v0.2:** se elimina el campo `senable` (ya no hay seña; todo es compra directa) y el estado `reservado` (no hay reservas).
 
 ### 4.3 FotoVinilo
 | Campo | Tipo | Notas |
@@ -114,16 +116,17 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 |-------|------|-------|
 | id | UUID | |
 | usuario_id | FK Usuario | |
-| tipo | enum | `sena` / `compra_directa` |
 | estado | enum | ver máquina de estados §5.2 |
-| total | decimal | suma de precios de los ítems |
-| monto_pagado | decimal | seña (50%) o total (100%) |
-| codigo_retiro | texto | **generado aleatoriamente, único e irrepetible, corto y legible** (ver R-13); se muestra al cliente y lo ingresa el dueño |
-| fecha_vencimiento | timestamp | solo `sena`: creación + 7 días |
-| fecha_cierre | timestamp | cuando se resuelven todos los ítems |
+| total | decimal | suma de precios de los ítems (100% online) |
+| monto_pagado | decimal | igual al total (compra directa) |
+| modo_entrega | enum | `retiro` / `envio` |
+| codigo_retiro | texto | solo `retiro`: **generado aleatoriamente, único, corto y legible** (ver R-13) |
+| fecha_pago | timestamp | cuando se aprueba el pago (webhook) |
+| fecha_entrega | timestamp | retiro: cuando el dueño confirma la entrega |
+| fecha_despacho | timestamp | envío: cuando el dueño marca que lo despachó por correo |
 | created_at | timestamp | |
 
-> **Restricción:** una orden **no** mezcla vinilos señables y no señables (R-10). Si el cliente quiere señar unos y comprar otros directo, son órdenes separadas.
+> **Cambio v0.2:** se elimina el campo `tipo` (ya no hay `sena` vs `compra_directa`; todo es compra directa) y `fecha_vencimiento` (no hay reservas). Se agregan `modo_entrega`, `fecha_despacho` y los datos de envío (§4.11).
 
 ### 4.6 ItemOrden
 | Campo | Tipo | Notas |
@@ -133,34 +136,34 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 | vinilo_id | FK Vinilo | |
 | precio | decimal | copia del precio al momento de la orden |
 | descuento_corte_pct | entero | copia del % del vinilo al momento de la orden |
-| estado_item | enum | `pendiente` / `vendido` / `rechazado` / `vencido` |
-| resto_pagado | bool | solo seña |
-| metodo_resto | enum | `efectivo` / `online` (nulo hasta que se pague) |
+
+> **Cambio v0.2:** se elimina la resolución ítem por ítem (`estado_item`, `resto_pagado`, `metodo_resto`), que era propia de la seña. En compra directa, todos los ítems se venden al aprobarse el pago.
 
 ### 4.7 Pago
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | id | UUID | |
 | orden_id | FK Orden | |
-| tipo | enum | `sena` / `resto` / `total` |
-| monto | decimal | |
+| monto | decimal | total de la orden |
 | medio | enum | `mercadopago` / `efectivo` |
 | mp_payment_id | texto | id del pago en MP (si aplica) |
 | estado | enum | `pendiente` / `aprobado` / `rechazado` |
 | created_at | timestamp | |
 
+> **Cambio v0.2:** se elimina `tipo` (`sena`/`resto`/`total`): siempre es el pago total.
+
 ### 4.8 Reembolso
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | id | UUID | |
-| pago_id | FK Pago | seña a devolver |
-| item_id | FK ItemOrden | vinilo asociado (en órdenes multi-vinilo la devolución es por ítem) |
-| monto | decimal | 100% de la seña de ese ítem |
+| pago_id | FK Pago | pago a devolver |
+| orden_id | FK Orden | orden asociada |
+| monto | decimal | monto devuelto |
 | mp_refund_id | texto | id de la devolución en MP |
-| motivo | enum | `rechazo_prueba` / `cancelacion_voluntaria` |
+| motivo | texto | motivo libre (devolución excepcional decidida por el dueño) |
 | created_at | timestamp | |
 
-> **Nota financiera (verificada con la doc de Mercado Pago):** al hacer una devolución total o parcial, MP **no cobra la comisión** del pago recibido y admite devolver **hasta 90 días** después de la venta. Como la reserva dura 7 días, devolver la seña no tiene costo para el dueño y entra holgado en los plazos.
+> **Cambio v0.2:** la compra directa es venta final; los reembolsos quedan como caso **excepcional** que ejecuta el dueño (p. ej. una devolución acordada). Se eliminan los motivos `rechazo_prueba` (no hay prueba) y `cancelacion_voluntaria` de reserva (no hay reserva).
 
 ### 4.9 Cupon
 | Campo | Tipo | Notas |
@@ -168,7 +171,7 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 | id | UUID | |
 | usuario_id | FK Usuario | |
 | orden_id | FK Orden | orden que lo generó |
-| porcentaje | entero | el **mayor** % entre los ítems vendidos de la orden |
+| porcentaje | entero | el **mayor** % entre los ítems de la orden |
 | fecha_generacion | timestamp | |
 | fecha_vencimiento | timestamp | generación + 2 meses |
 | estado | enum | `activo` / `usado` / `vencido` |
@@ -178,10 +181,35 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | id | UUID | |
-| tipo | enum | `nueva_sena` / `nueva_compra` / `reserva_por_vencer` … |
-| orden_id | FK Orden | |
+| tipo | enum | `nueva_compra` / `nuevo_pedido_busqueda` |
+| orden_id | FK Orden | nulo si es de un pedido de búsqueda |
+| pedido_busqueda_id | FK PedidoBusqueda | nulo si es de una compra |
 | leida | bool | alimenta el "cartelito" del panel |
 | created_at | timestamp | |
+
+### 4.11 Orden — datos de envío (solo `modo_entrega = envio`)
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| envio_nombre | texto | nombre de quien recibe |
+| envio_telefono | texto | contacto |
+| envio_direccion | texto | calle y número |
+| envio_localidad | texto | |
+| envio_provincia | texto | |
+| envio_cp | texto | código postal |
+
+> Se guardan como parte de la `Orden`. El despacho es **manual**: el dueño lleva el paquete al correo. La integración con Correo Argentino/OCA queda fuera del MVP.
+
+### 4.12 PedidoBusqueda (nuevo)
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | UUID | |
+| usuario_id | FK Usuario | solo clientes con cuenta |
+| titulo | texto | disco buscado |
+| artista | texto | |
+| notas | texto | opcional (edición, año, detalles) |
+| estado | enum | `buscando` / `encontrado` / `no_encontrado` |
+| created_at | timestamp | |
+| fecha_resolucion | timestamp | cuando el dueño lo marca encontrado/no encontrado |
 
 ---
 
@@ -194,146 +222,142 @@ El diferencial frente a Instagram es: catálogo navegable, control de stock, cob
         (dueño)  │   pausado    │  (dueño)
         ┌───────►│              │────────┐
         │        └──────────────┘        │
-        │                                ▼
-   ┌────┴──────┐   seña pagada    ┌──────────────┐
-   │ disponible│─────────────────►│  reservado   │
-   │           │                  │              │
-   └────┬──────┘◄─────────────────└──────┬───────┘
-        │        rechazo al probar /      │
-        │        cancelación /            │ confirma y paga resto
-        │        vencimiento reserva      ▼
-        │                          ┌──────────────┐
-        │  compra directa (100%)   │              │
-        └─────────────────────────►│   vendido    │
-        │  o venta efectivo walk-in │              │
-        │                          └──────┬───────┘
-        │                                 │ 30 días después
-        │                                 ▼
-        │                          (oculto del catálogo público,
-        │                           se conserva en DB)
+   ┌────┴──────┐                         ▼
+   │ disponible│   compra directa (100%)  ┌──────────────┐
+   │           │──────────────────────────►│   vendido    │
+   └───────────┘   o venta efectivo walk-in│              │
+                                           └──────┬───────┘
+                                                  │ 30 días después
+                                                  ▼
+                                   (oculto del catálogo público,
+                                    se conserva en DB)
 ```
 
 | Transición | Disparador |
 |-----------|-----------|
-| disponible → reservado | Se cobra la seña (50%) de un vinilo señable |
 | disponible → vendido | Compra directa pagada (100%) **o** venta efectivo walk-in |
 | disponible → pausado | El dueño lo pausa |
 | pausado → disponible | El dueño lo reactiva |
-| reservado → vendido | El cliente prueba, le gusta y paga el resto |
-| reservado → disponible | Rechazo al probar / cancelación voluntaria / vencimiento de la reserva (7 días) |
 | vendido → (oculto) | 30 días después de `fecha_venta`; permanece en la base para historial |
 
-### 5.2 Orden
+> **Cambio v0.2:** se elimina el estado `reservado` y todas sus transiciones (no hay seña ni reservas).
 
-**Orden de seña**
-```
-pendiente_pago ──(seña aprobada)──► activa ──(todos los ítems resueltos)──► cerrada
-      │                                │
-      │                                ├──(cliente cancela antes de probar)──► cancelada
-      │                                └──(vence a los 7 días sin retiro)─────► vencida
-      └──(seña no se aprueba)──► cancelada
-```
+### 5.2 Orden (compra directa)
 
-**Orden de compra directa**
 ```
-pendiente_pago ──(pago 100% aprobado)──► pagada ──(entrega en el local)──► entregada
-      └──(pago rechazado)──► cancelada
+pendiente_pago ──(pago 100% aprobado)──► pagada ──┬─(retiro: entrega en el local)──► entregada
+      │                                            └─(envío: despachado por correo)──► enviada
+      └──(pago rechazado / no aprobado)──► cancelada
 ```
 
-Cada **ItemOrden** de una orden de seña se resuelve de forma independiente:
-`pendiente → vendido` (le gustó y pagó) / `rechazado` (no le gustó → reembolso) / `vencido` (no se presentó).
-La orden pasa a `cerrada` cuando no quedan ítems `pendiente`.
+- **pendiente_pago:** creada, esperando el webhook de Mercado Pago.
+- **pagada:** pago aprobado (por webhook). Vinilos → `vendido`. Si `retiro`, se genera el **código de retiro**.
+- **entregada:** (retiro) el dueño confirmó la entrega en el local.
+- **enviada:** (envío) el dueño marcó que despachó el paquete por correo.
+- **cancelada:** el pago no se aprobó.
+
+### 5.3 PedidoBusqueda
+
+```
+buscando ──(el dueño lo consigue)────► encontrado
+    └──────(el dueño no lo consigue)──► no_encontrado
+```
+
+- **buscando:** creado por el cliente; el dueño fue notificado. El cliente ve "tu vinilo está siendo buscado".
+- **encontrado:** el dueño lo consiguió → el sistema **avisa al cliente por email** y el dueño ve su contacto para escribirle (WhatsApp/mail).
+- **no_encontrado:** el dueño no lo pudo conseguir → se avisa al cliente.
 
 ---
 
 ## 6. Reglas de negocio
 
-- **R-1** La seña es el **50%** del total de la orden, cobrada 100% online por Mercado Pago.
-- **R-2** La reserva **vence a los 7 días**. Al vencer: los vinilos vuelven a `disponible` y la seña **se pierde**.
-- **R-3** Si al retirar el cliente prueba un vinilo y **no le gusta**, se le **devuelve la seña de ese ítem** (100%) y el vinilo vuelve a `disponible`. **Quién lo marca:** el **dueño**, desde su panel, en el momento del retiro (es él quien ingresó el código y opera el panel, con el cliente presente). El cliente **no** puede marcar el rechazo por su cuenta; así se evita que alguien lo declare sin haber probado el disco. La acción queda registrada con fecha y dispara la devolución automática por Mercado Pago.
-- **R-4** Si el cliente **cancela la reserva antes de ir a probar** (se arrepiente), se le **devuelve la seña** y los vinilos vuelven a `disponible`. **Quién lo marca:** el **cliente**, desde su cuenta, mientras la reserva siga vigente (antes del vencimiento y antes de presentarse a probar).
-- **R-5** Si el cliente **no se presenta** y vence la semana, **pierde la seña** (único caso de pérdida).
-- **R-6** La **compra directa** existe solo para vinilos **no señables**: pago 100% online, venta **final sin prueba**.
-- **R-7** La **venta en efectivo walk-in** solo puede hacerse sobre vinilos en estado `disponible` (nunca sobre uno reservado/pausado/vendido).
+> Numeración estable: las reglas **R-1…R-5** (seña, reserva, vencimiento, rechazo al probar, no presentarse) **quedan eliminadas** en v0.2. Se conservan los IDs para no romper referencias históricas. R-10 (no mezclar señables/no señables) también queda sin efecto.
+
+- ~~**R-1…R-5**~~ **Eliminadas (v0.2):** eran de la seña/reserva.
+- **R-6** La **compra directa** es el único modo de venta online: pago 100% online por Mercado Pago, venta **final**.
+- **R-7** La **venta en efectivo walk-in** solo puede hacerse sobre vinilos en estado `disponible` (nunca sobre uno pausado/vendido).
 - **R-8 (cupones):**
   - Se genera **1 cupón por compra** con venta confirmada.
   - Tope: **máximo 1 cupón cada 30 días corridos** desde la `fecha_generacion` del último cupón del cliente. Si ya obtuvo uno en los últimos 30 días, la compra se concreta igual pero **no genera cupón**.
-  - El **porcentaje** del cupón es el **mayor %** entre los ítems **vendidos/confirmados** de esa orden (los rechazados no cuentan).
+  - El **porcentaje** del cupón es el **mayor %** entre los ítems de esa orden.
   - **Validez: 2 meses** desde la generación.
   - **Uso: 1 cupón por corte** (regla a aplicar en el módulo de turnos).
 - **R-9** Un vinilo `vendido` se **oculta del catálogo público 30 días** después de la venta; el registro se conserva en la base para historial.
-- **R-10** Una orden **no mezcla** vinilos señables y no señables.
-- **R-11 (concurrencia):** al iniciar el pago de una seña/compra, el vinilo se **bloquea** para evitar que dos personas reserven la misma pieza única. Si el pago no se aprueba o expira, se libera.
-- **R-12** El cliente debe tener el **email verificado** para señar o comprar.
-- **R-13 (código de retiro):** al confirmarse el pago de una orden se genera un `codigo_retiro` con estas propiedades:
-  - **Aleatorio**, generado con un algoritmo (no correlativo ni predecible a partir del id de la orden).
+- ~~**R-10**~~ **Sin efecto (v0.2):** ya no hay vinilos señables vs no señables.
+- **R-11 (concurrencia):** al iniciar el pago de una compra, el vinilo se **bloquea** para evitar que dos personas compren la misma pieza única. Si el pago no se aprueba o expira, se libera. Se verifica `disponible` y se cambia el estado atómicamente.
+- **R-12** El cliente debe tener el **email verificado** para comprar y para crear pedidos de búsqueda.
+- **R-13 (código de retiro):** en las órdenes con `modo_entrega = retiro`, al confirmarse el pago se genera un `codigo_retiro` con estas propiedades:
+  - **Aleatorio**, generado con un algoritmo (no correlativo ni predecible).
   - **Único e irrepetible**: se verifica que no exista otro código vigente igual antes de asignarlo (reintentar si colisiona).
-  - **Legible y entendible**: corto (sugerido 6–8 caracteres), en mayúsculas, con un alfabeto sin caracteres ambiguos (se excluyen `0/O`, `1/I/L`), y puede mostrarse agrupado (ej. `H7K-2P9`) para facilitar el dictado y la carga manual.
+  - **Legible y entendible**: corto (6–8 caracteres), mayúsculas, alfabeto sin ambiguos (se excluyen `0/O`, `1/I/L`), agrupado (ej. `H7K-2P9`).
+- **R-14 (entrega):** el cliente elige al comprar entre **retiro en el local** o **envío por correo**.
+  - **Retiro:** se genera código de retiro; el dueño lo ingresa y confirma la entrega.
+  - **Envío:** se capturan los **datos de envío** (§4.11); el dueño despacha **manualmente** por correo y marca la orden como `enviada`. El pago online cubre **solo el precio del disco**; el servicio de correo se gestiona con el correo por fuera.
+- **R-15 (pedido de búsqueda):** solo un **cliente con cuenta verificada** puede crear un pedido de búsqueda.
+  - Al crearse, **notifica al dueño** (cartelito + email).
+  - Estados: `buscando` → `encontrado` / `no_encontrado`.
+  - Al pasar a `encontrado`, el sistema **envía un email automático** al cliente y el dueño ve el **contacto** del cliente para escribirle por WhatsApp/mail.
 
 ---
 
 ## 7. Flujos principales
 
-### Flujo A — Señar (uno o varios vinilos señables)
-1. El cliente (verificado) agrega uno o más vinilos **señables** y va a pagar.
-2. El sistema bloquea esos vinilos (R-11) y crea una `Orden` tipo `sena` en `pendiente_pago`.
-3. Cobra el **50% del total** por Mercado Pago.
-4. Con el pago aprobado: la orden pasa a `activa`, cada vinilo pasa a `reservado`, se fija `fecha_vencimiento` (+7 días) y se genera el **código de retiro**.
-5. El cliente recibe **email de confirmación** con el código. El dueño ve el **aviso en su panel + email**.
+### Flujo A — Comprar directo (uno o varios vinilos)
+1. El cliente (verificado) agrega uno o más vinilos disponibles y va a pagar.
+2. Elige **modo de entrega**: retiro en el local o envío por correo (si es envío, carga los datos de envío).
+3. El sistema bloquea esos vinilos (R-11) y crea una `Orden` en `pendiente_pago`.
+4. Cobra el **100% del total** por Mercado Pago.
+5. Con el pago aprobado (**webhook**): la orden pasa a `pagada`, cada vinilo pasa a `vendido` (con `fecha_venta`), se genera el **código de retiro** (si es retiro) y, si corresponde por R-8, el **cupón**.
+6. El cliente recibe **email de confirmación** (con el código si es retiro). El dueño ve el **aviso en su panel + email**.
 
-### Flujo B — Comprar directo (uno o varios vinilos no señables)
-1. El cliente agrega uno o más vinilos **no señables** y va a pagar.
-2. Se crea `Orden` tipo `compra_directa` en `pendiente_pago`; se bloquean los vinilos.
-3. Cobra el **100%** por Mercado Pago.
-4. Con el pago aprobado: orden `pagada`, vinilos `vendido` (con `fecha_venta`), se genera **código de retiro** y (si corresponde por R-8) el **cupón**.
-5. Email de confirmación al cliente + aviso al dueño.
-
-### Flujo C — Retiro y resolución de una seña (por vinilo)
+### Flujo B — Retiro en el local
 1. El cliente se presenta con su **código**. El dueño lo ingresa en el panel.
-2. El panel muestra **todos los vinilos de esa orden**. Por cada uno, el dueño registra:
-   - **Confirmar venta** → cobra el resto (efectivo u online en el momento) → ítem `vendido`, vinilo `vendido` (`fecha_venta`).
-   - **Rechazado** → dispara **devolución de la seña de ese ítem** por MP → ítem `rechazado`, vinilo `disponible`.
-3. Cuando no quedan ítems `pendiente`, la orden pasa a `cerrada`.
-4. Al cierre, si hay al menos un ítem `vendido`, se evalúa R-8 y (si corresponde) se genera **1 cupón** con el **mayor %** de los ítems vendidos.
+2. El panel muestra la orden y sus vinilos; el dueño toca **Confirmar entrega** → orden `entregada`.
 
-### Flujo D — Retiro de compra directa
-1. El cliente se presenta con su código. El dueño lo ingresa.
-2. El panel muestra los vinilos; el dueño toca **Confirmar entrega** → orden `entregada`.
+### Flujo C — Envío por correo
+1. La orden con `modo_entrega = envio` queda `pagada` con los datos de envío.
+2. El dueño prepara el paquete y lo **despacha manualmente** por Correo Argentino/OCA.
+3. El dueño marca la orden como **despachada** → orden `enviada`.
+4. (Futuro) Integración con la API del correo para cotización/etiqueta/tracking.
 
-### Flujo E — Venta en efectivo walk-in
+### Flujo D — Venta en efectivo walk-in
 1. Una persona entra al local y compra un vinilo físico en el momento.
 2. El dueño, desde el panel, marca ese vinilo (que debe estar `disponible`, R-7) como **vendido en efectivo** → vinilo `vendido` (`fecha_venta`), sin orden online.
 3. El sistema lo saca inmediatamente del catálogo público.
 
-### Flujo F — Vencimiento de reserva (proceso automático)
-1. Un job detecta órdenes de seña `activa` con `fecha_vencimiento` pasada y sin retiro.
-2. Marca los ítems `pendiente` como `vencido`, los vinilos vuelven a `disponible`, la orden pasa a `vencida`.
-3. La seña **se pierde** (no hay devolución).
-
-### Flujo G — Ocultamiento de vendidos (proceso automático)
+### Flujo E — Ocultamiento de vendidos (proceso automático)
 1. Un job oculta del catálogo público los vinilos `vendido` cuya `fecha_venta` tenga más de 30 días. El registro permanece en la base.
+
+### Flujo F — Pedido de búsqueda
+1. Un cliente verificado que no encuentra un disco crea un **pedido de búsqueda** (título, artista, notas).
+2. El pedido queda en `buscando`; el dueño recibe **notificación** (cartelito + email). El cliente ve el estado en "Mi cuenta".
+3. El dueño intenta conseguirlo. Cuando resuelve:
+   - **Encontrado** → el sistema **avisa al cliente por email**; el dueño ve el contacto del cliente y lo contacta (WhatsApp/mail) para coordinar la venta.
+   - **No encontrado** → se avisa al cliente que no se pudo conseguir.
 
 ---
 
 ## 8. Catálogo público (cliente/visitante)
 
-- **Grilla** con foto de **tapa** (portada), título, artista, precio y estado del disco; indicador visual de `reservado` / `vendido` (visibles hasta el ocultamiento a 30 días) y de si es señable o compra directa.
-- **Ficha del vinilo:** galería de fotos, todos los datos, precio, **descuento en corte** que otorga, y botón **Señar** o **Comprar** según `senable`.
+- **Grilla** con foto de **tapa** (portada), título, artista, precio y estado del disco; indicador visual de `vendido` (visible hasta el ocultamiento a 30 días).
+- **Ficha del vinilo:** galería de fotos, todos los datos, precio, **descuento en corte** que otorga, y botón **Comprar**.
 - **Buscador** por texto (título/artista).
 - **Filtros:** artista, género, rango de precio, estado del disco.
 - **Orden:** "más nuevos" por `fecha_publicacion` (por defecto).
+- **Pedido de búsqueda:** si el cliente no encuentra lo que busca, un espacio del tipo **"¿No lo encontrás? Pedilo"** le permite crear un pedido de búsqueda (requiere cuenta verificada).
 - Precios **públicos**.
-- **Explicación de la escala Goldmine:** como el estado del disco usa siglas (M, NM, VG++, etc.), la web debe ofrecer al cliente una **explicación accesible de la escala** — por ejemplo, un tooltip/ícono de ayuda junto al estado en la ficha y/o una **página de ayuda o glosario** que describa qué significa cada sigla. El objetivo es que el cliente entienda el estado sin conocer la jerga de coleccionista.
+- **Explicación de la escala Goldmine:** tooltip/ícono de ayuda junto al estado en la ficha y/o una **página de ayuda o glosario** que describa qué significa cada sigla.
 
 ---
 
 ## 9. Panel del dueño
 
-- **Dashboard:** reservas activas con su vencimiento, ventas del mes, vinilos con seña **pendiente de retiro**, y el "cartelito" de notificaciones sin leer.
-- **Gestión de vinilos:** cargar, editar, **pausar**/reactivar; definir `senable` y `descuento_corte_pct`; subir fotos (la primera = tapa).
-- **Órdenes:** ver órdenes por estado; ingresar **código de retiro** y resolver ítem por ítem (Flujo C/D).
-- **Venta walk-in:** marcar un vinilo disponible como vendido en efectivo (Flujo E).
-- **Reembolsos:** ejecutar la devolución de seña (integración con MP) para rechazos y cancelaciones.
+- **Dashboard:** ventas del mes, órdenes por estado (pendientes de entrega/despacho), pedidos de búsqueda abiertos, y el "cartelito" de notificaciones sin leer.
+- **Gestión de vinilos:** cargar, editar, **pausar**/reactivar; definir `descuento_corte_pct`; subir fotos (la primera = tapa).
+- **Órdenes:** ver órdenes por estado; **retiro** (ingresar código y confirmar entrega) y **envío** (ver datos de envío y marcar despachado).
+- **Pedidos de búsqueda:** ver los abiertos, marcar **encontrado**/**no encontrado**, ver el contacto del cliente.
+- **Venta walk-in:** marcar un vinilo disponible como vendido en efectivo (Flujo D).
+- **Reembolsos:** ejecutar una devolución excepcional (integración con MP) si hace falta.
 
 ---
 
@@ -341,23 +365,25 @@ La orden pasa a `cerrada` cuando no quedan ítems `pendiente`.
 
 | Evento | Al dueño | Al cliente |
 |--------|----------|-----------|
-| Nueva seña | Cartelito en panel + email | Email de confirmación con código |
-| Nueva compra directa | Cartelito en panel + email | Email de confirmación con código |
-| Reserva por vencer | Cartelito en panel | (opcional a definir en fase 2) |
+| Nueva compra | Cartelito en panel + email | Email de confirmación (con código si es retiro) |
+| Nuevo pedido de búsqueda | Cartelito en panel + email | — |
+| Vinilo encontrado | (lo marca el dueño) | **Email automático** de que se encontró; el dueño además lo contacta por WhatsApp/mail |
 
 > WhatsApp automático al dueño queda para **fase 2** (requiere API de WhatsApp Business, con costo mensual y aprobación de plantillas).
 
 ---
 
-## 11. Decisiones abiertas (a confirmar antes de implementar)
-
-- **D-3 — Recordatorio de reserva por vencer al cliente** (email el día previo al vencimiento): incluido o no en el MVP.
+## 11. Decisiones (a confirmar antes de implementar / ya tomadas)
 
 ### Decisiones ya tomadas
-- **D-1 (resuelta) — Escala de estado del disco.** Se adopta la **escala Goldmine** (Mint, Near Mint, VG++, VG+, VG, Good, Poor) como lista cerrada, con un único estado general por disco. La web debe **explicar las siglas al cliente** (tooltip en la ficha y/o página de ayuda/glosario), según §8.
-- **D-2 (resuelta) — Stack técnico.** Definido: **backend Java + Spring Boot, frontend React**. Todo el detalle técnico (arquitectura, entidades, integraciones, jobs, despliegue) se documenta **por separado**, en las notas de desarrollo, para no mezclar dominio con implementación. Ver `documentacion-tecnica.md`.
+- **D-1 (resuelta) — Escala de estado del disco.** Se adopta la **escala Goldmine** (Mint, Near Mint, VG++, VG+, VG, Good, Poor) como lista cerrada, con explicación de siglas en la web (§8).
+- **D-2 (resuelta) — Stack técnico.** Backend Java + Spring Boot, frontend React. Detalle en `documentacion-tecnica.md`.
+- **D-4 (resuelta, v0.2) — Sin seña.** Se elimina la seña/reserva; el único modo online es la **compra directa** (100%).
+- **D-5 (resuelta, v0.2) — Entrega.** El cliente elige **retiro en el local** (con código) o **envío por correo** (despacho manual del dueño; el pago online cubre solo el disco).
+- **D-6 (resuelta, v0.2) — Pedidos de búsqueda.** Solo clientes con cuenta; al encontrarlo, email automático al cliente + contacto manual del dueño.
 
-> **Nota sobre los documentos del proyecto.** Esta spec describe **el dominio y la página web** (el "qué"). Las notas de desarrollo del "cómo" y el seguimiento viven en archivos aparte: `documentacion-tecnica.md` (diseño técnico), `registro-releases.md` (releases por iteración) e `historias-usuario.md` (backlog con estado de tareas).
+### Decisiones abiertas / a explorar
+- **D-7 — Integración con el correo (Correo Argentino/OCA).** Cotización, etiquetas y tracking automáticos. Requiere cuenta/contrato con el correo y sus APIs. Queda como **exploración futura**; en el MVP el envío es manual.
 
 ---
 

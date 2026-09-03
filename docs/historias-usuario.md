@@ -3,18 +3,21 @@
 > **Notas de desarrollo.** Backlog derivado de `spec-modulo-vinilos.md`. Se marca el avance con checkboxes: `[ ]` pendiente, `[x]` hecho. Cada historia lista sus criterios de aceptación (CA) y sus tasks técnicas. Al completar, cruzar con `registro-releases.md`.
 > Convención de IDs: `HU-##` historias, `T-##` tasks. Referencias a reglas (`R-#`) y flujos (`Flujo X`) apuntan a la spec de dominio.
 
+> **Cambio de alcance (spec v0.2):** se elimina la **seña** (épica E4). El único modo online es la **compra directa** (E5). El "retiro/resolución" (E6) pasa a ser **entrega** (retiro con código / envío por correo). Se agrega **E12 — Pedidos de búsqueda**.
+
 ## Estado global (resumen)
 - [x] E1 — Cuentas y autenticación _(email/contraseña + verificación + JWT + login con Google + cuenta)_
 - [x] E2 — Publicación y gestión de vinilos (dueño)
 - [x] E3 — Catálogo y descubrimiento (cliente)
-- [ ] E4 — Seña
-- [ ] E5 — Compra directa
-- [ ] E6 — Retiro y resolución
+- [~] ~~E4 — Seña~~ **ELIMINADA (v0.2)** — no hay seña ni reserva.
+- [ ] E5 — Compra directa (100%) + elección de entrega
+- [ ] E6 — Entrega (retiro con código / envío por correo)
 - [ ] E7 — Venta walk-in
 - [ ] E8 — Cupones
 - [ ] E9 — Jobs automáticos
 - [ ] E10 — Notificaciones
 - [ ] E11 — Panel y dashboard del dueño
+- [ ] E12 — Pedidos de búsqueda
 
 ---
 
@@ -91,58 +94,41 @@ Como visitante, quiero ver la ficha completa y entender qué significan las sigl
 
 ## E4 — Seña
 
-### HU-10 — Señar uno o varios vinilos
-Como cliente verificado, quiero señar vinilos señables pagando el 50%.
-- CA: una orden **no mezcla** señables y no señables (**R-10**).
-- CA: seña = **50%** del total, online por MP (**R-1**).
-- CA: al aprobarse el pago (webhook), vinilos → `reservado`, se fija vencimiento +7 días y se genera **código de retiro** (**R-13**).
-- CA: doble reserva evitada por bloqueo (**R-11**).
-- [ ] T-22 Entidades `Orden`, `ItemOrden`, `Pago` + migración _(migración/entidades hechas en M0 · v0.2.0; endpoint pendiente)_
-- [ ] T-23 Endpoint `POST /ordenes/sena`
-- [ ] T-24 Integración MP: creación de pago (50%)
-- [ ] T-25 Webhook MP + confirmación idempotente
-- [ ] T-26 Generación de código de retiro
-- [ ] T-27 Bloqueo de concurrencia (R-11)
-- [ ] T-28 UI de selección y checkout de seña
-
-### HU-11 — Cancelar mi reserva antes de probar
-Como cliente, quiero cancelar mi reserva y recuperar la seña mientras esté vigente (**R-4**).
-- CA: lo dispara el **cliente**; vinilos → `disponible`; reembolso por MP.
-- [ ] T-29 Endpoint `POST /ordenes/{id}/cancelar`
-- [ ] T-30 Refund MP + `Reembolso` (motivo cancelación)
-- [ ] T-31 UI de cancelación
+> **E4 (Seña) — ELIMINADA en la spec v0.2.** Ya no existe la seña ni la reserva. HU-10 (señar) y HU-11 (cancelar reserva) quedan sin efecto. Las tareas T-22…T-31 no se implementan. La lógica de órdenes/pago/webhook/código/concurrencia se cubre en **E5 (compra directa)**.
 
 ---
 
-## E5 — Compra directa
+## E5 — Compra directa (100%) + elección de entrega
 
 ### HU-12 — Comprar directo
-Como cliente verificado, quiero comprar un vinilo no señable pagando el 100%.
-- CA: solo para `senable = false`; venta **final sin prueba** (**R-6**).
-- CA: al aprobarse el pago, vinilos → `vendido`, código de retiro y (si aplica) cupón.
-- [ ] T-32 Endpoint `POST /ordenes/compra`
-- [ ] T-33 Integración MP: pago 100%
-- [ ] T-34 UI de compra directa
+Como cliente verificado, quiero comprar uno o varios vinilos pagando el 100%.
+- CA: venta **final** (**R-6**); pago 100% online por MP.
+- CA: al aprobarse el pago (**webhook** idempotente), vinilos → `vendido`; si `retiro`, se genera **código de retiro** (R-13); si `envio`, se guardan los datos de envío.
+- CA: **bloqueo de concurrencia** — dos usuarios no compran la misma pieza (**R-11**).
+- CA: elige **modo de entrega** (retiro / envío) en el checkout (**R-14**).
+- [ ] T-32 Entidades/enum de órdenes v0.2 (sin seña) + migración (quitar `senable`, estados, agregar `modo_entrega` y datos de envío)
+- [ ] T-33 Endpoint `POST /ordenes` (compra + modo de entrega)
+- [ ] T-34 Integración MP: pago 100% (Checkout Pro sandbox)
+- [ ] T-35 Webhook MP + confirmación idempotente + generación de código (retiro)
+- [ ] T-36 Bloqueo de concurrencia (R-11)
+- [ ] T-37 UI de checkout (selección de entrega + pago)
 
 ---
 
-## E6 — Retiro y resolución
+## E6 — Entrega (retiro / envío)
 
-### HU-13 — Resolver retiro de seña por vinilo
-Como dueño, quiero ingresar el código y resolver cada vinilo (vender o rechazar).
-- CA: **el dueño** marca el rechazo, en persona (**R-3**); el cliente no puede.
-- CA: "Confirmar venta" cobra el resto (efectivo u online) → `vendido`.
-- CA: "Rechazado" → refund de la seña de ese ítem → vinilo `disponible`.
-- CA: orden pasa a `cerrada` cuando no quedan ítems `pendiente`; se evalúa cupón (E8).
-- [ ] T-35 Endpoint `POST /retiros/{codigo}` (buscar orden)
-- [ ] T-36 Endpoint vender ítem (+ registrar pago del resto)
-- [ ] T-37 Endpoint rechazar ítem (+ refund)
-- [ ] T-38 UI de resolución ítem por ítem
+### HU-13 — Confirmar entrega (retiro en el local)
+Como dueño, quiero ingresar el código de retiro y confirmar la entrega.
+- CA: ingreso el código → veo la orden y sus vinilos → **Confirmar entrega** → orden `entregada` (Flujo B).
+- [ ] T-38 Endpoint `POST /retiros/{codigo}` (buscar orden) + `POST /retiros/{codigo}/entregar`
+- [ ] T-39 UI de retiro y entrega en el panel
 
-### HU-14 — Confirmar entrega de compra directa
-Como dueño, quiero ingresar el código y confirmar la entrega.
-- [ ] T-39 Endpoint `POST /retiros/{codigo}/entregar`
-- [ ] T-40 UI de entrega
+### HU-14 — Despachar envío por correo
+Como dueño, quiero ver los datos de envío de una orden y marcarla como despachada.
+- CA: la orden `envio` muestra la dirección; al despacharla → orden `enviada` (Flujo C).
+- CA: el despacho es **manual** (el dueño va al correo); integración con Correo Argentino/OCA = futuro (D-7).
+- [ ] T-40 Endpoint `POST /admin/ordenes/{id}/despachar`
+- [ ] T-41 UI de envíos en el panel (ver dirección + marcar despachado)
 
 ---
 
@@ -171,46 +157,63 @@ Como cliente, al concretar una compra quiero recibir mi cupón de descuento en c
 
 ## E9 — Jobs automáticos
 
-### HU-17 — Vencer reservas
-Como sistema, quiero vencer reservas no retiradas a los 7 días (**Flujo F**).
-- CA: ítems `pendiente` → `vencido`, vinilos → `disponible`, orden → `vencida`, **seña perdida**.
-- [ ] T-46 Job programado de vencimiento
+> **HU-17 (Vencer reservas) — ELIMINADA (v0.2):** no hay reservas ni vencimiento.
 
 ### HU-18 — Ocultar vendidos
-Como sistema, quiero ocultar del catálogo los vendidos con más de 30 días (**Flujo G**).
-- CA: no se borra el registro; se filtra en el catálogo.
-- [ ] T-47 Job programado de ocultamiento + filtro en queries
+Como sistema, quiero ocultar del catálogo los vendidos con más de 30 días (**Flujo E**).
+- CA: no se borra el registro; se filtra en el catálogo (R-9).
+- [ ] T-47 Job programado de ocultamiento + filtro en queries _(el filtro de visibilidad del catálogo ya se aplica en las queries desde M1)_
 
 ---
 
 ## E10 — Notificaciones
 
 ### HU-19 — Avisar al dueño
-Como dueño, quiero enterarme de nuevas señas/compras por el panel y por email.
+Como dueño, quiero enterarme de nuevas **compras** y **pedidos de búsqueda** por el panel y por email.
 - CA: registro en `NotificacionDueno` (cartelito) + email. WhatsApp = fase 2.
 - [ ] T-48 Entidad `NotificacionDueno` + badge en panel _(migración/entidad hecha en M0 · v0.2.0; badge/lógica pendientes)_
 - [ ] T-49 Emails al dueño
 
-### HU-20 — Confirmar al cliente
-Como cliente, quiero recibir por email la confirmación con mi código de retiro.
-- [ ] T-50 Email de confirmación al cliente
+### HU-20 — Emails al cliente
+Como cliente, quiero recibir por email la confirmación de compra (con el código si es retiro) y el aviso cuando encuentran un vinilo que pedí.
+- [ ] T-50 Email de confirmación de compra + email de "vinilo encontrado"
 
 ---
 
 ## E11 — Panel y dashboard del dueño
 
 ### HU-21 — Dashboard
-Como dueño, quiero ver de un vistazo reservas activas con vencimiento, ventas del mes y señas pendientes de retiro.
+Como dueño, quiero ver de un vistazo las ventas del mes, las órdenes pendientes de entrega/despacho y los pedidos de búsqueda abiertos.
 - [ ] T-51 Endpoint `GET /panel/dashboard`
 - [ ] T-52 UI de dashboard
 
 ### HU-22 — Gestión de reembolsos
-Como dueño, quiero ver/ejecutar los reembolsos de seña (rechazos y cancelaciones).
+Como dueño, quiero ver/ejecutar reembolsos excepcionales (devoluciones acordadas).
 - [ ] T-53 Vista de reembolsos + estados MP
 
 ---
 
+## E12 — Pedidos de búsqueda
+
+### HU-23 — Pedir un vinilo que no está
+Como cliente verificado, quiero pedir un disco que no encuentro para que el dueño intente conseguirlo (**R-15**).
+- CA: solo clientes con cuenta verificada; cargo título, artista y notas (opcional).
+- CA: al crearlo, el dueño recibe notificación (cartelito + email); yo lo veo en estado `buscando` en "Mi cuenta".
+- [ ] T-54 Entidad `PedidoBusqueda` + migración
+- [ ] T-55 Endpoints `POST /pedidos-busqueda`, `GET /pedidos-busqueda/mios`
+- [ ] T-56 UI "¿No lo encontrás? Pedilo" en el catálogo + "Mis pedidos" en la cuenta
+
+### HU-24 — Resolver un pedido de búsqueda
+Como dueño, quiero ver los pedidos abiertos y marcarlos encontrado/no encontrado.
+- CA: al marcar **encontrado**, el sistema le manda un email al cliente y me muestra su contacto para escribirle (WhatsApp/mail).
+- CA: al marcar **no encontrado**, se avisa al cliente.
+- [ ] T-57 Endpoints `GET /admin/pedidos-busqueda`, `POST /admin/pedidos-busqueda/{id}/resolver`
+- [ ] T-58 UI de gestión de pedidos en el panel (+ email automático al cliente)
+
+---
+
 ## Notas
-- **Milestone 0 (setup) completado en `v0.2.0`:** monorepo `backend/` (Spring Boot + Flyway) y `frontend/` (React + Vite), migración inicial `V1__init.sql` con **todas** las entidades del §4, perfiles dev/prod con secrets por variables de entorno, `docker-compose` para Postgres y health-check E2E. Las tasks T-10/T-22/T-43/T-48 quedan **sin marcar** porque solo se hizo su parte de entidades/migración (ver notas inline); sus endpoints/UI/lógica siguen pendientes.
-- El orden sugerido de implementación (ver `registro-releases.md`): E1 → E3 (catálogo lectura) → E2 → E4/E5 → E6 → E8 → E9 → E10/E11 → E7.
+- **Cambio de alcance (spec v0.2):** sin seña. El modelo de órdenes de M0 (`V1__init.sql`) tenía las entidades pensadas para seña; al implementar **E5** hay que hacer una **migración nueva** que lo adapte a compra directa (quitar `senable`, estado `reservado`, `Orden.tipo`, `ItemOrden.estadoItem`, `Pago.tipo`; agregar `Orden.modoEntrega` + datos de envío; agregar `PedidoBusqueda`). Ver T-32 y T-54.
+- Milestones 0–2 completados (`v0.2.0`–`v0.4.0`): setup, cuentas+catálogo, gestión de vinilos con fotos en MinIO.
+- Orden sugerido restante: **E5** (compra) → **E6** (entrega) → **E12** (pedidos de búsqueda) → **E8/E9/E10** (cupones/jobs/notif) → **E11** (panel/hardening). E7 (walk-in) puede ir junto con E6.
 - Las historias del cliente dependen de E1 (auth verificada, R-12).

@@ -61,60 +61,74 @@ Alcance: HU-04…HU-06.
 
 ---
 
-## Milestone 3 — Pagos: seña y compra directa → `v0.5.0`
-**Meta:** el cliente paga online y el stock reacciona correctamente.
-**Épicas:** E4 (Seña), E5 (Compra directa).
+> **Nota de alcance (spec v0.2):** se eliminó la **seña/reserva**. El único modo online es la **compra directa** (100%). Se agregó la **entrega** (retiro con código / envío por correo manual) y los **pedidos de búsqueda**. Los milestones de acá en adelante se replantearon en consecuencia.
 
-Alcance: HU-10, HU-11, HU-12.
-- Órdenes (seña 50% / compra 100%), integración Mercado Pago en **sandbox**, confirmación por **webhook** (idempotente), generación de **código de retiro**, **bloqueo de concurrencia** (pieza única), cancelación de reserva con refund.
+## Milestone 3 — Compra directa (pago) → `v0.5.0`
+**Meta:** el cliente paga online el 100% y el stock reacciona correctamente.
+**Épicas:** E5 (Compra directa).
+
+Alcance: HU-12 + elección de entrega en el checkout.
+- Órdenes (100%), integración Mercado Pago en **sandbox**, confirmación por **webhook** (idempotente), **bloqueo de concurrencia** (pieza única, R-11), elección de **modo de entrega** (retiro / envío + datos de dirección) y generación de **código de retiro** (solo retiro, R-13).
 
 **Criterios de salida:**
-- [ ] Señar deja el vinilo `reservado` con vencimiento +7 días y código generado, solo tras webhook aprobado.
-- [ ] Comprar directo (no señable) deja el vinilo `vendido`.
-- [ ] Dos usuarios no pueden reservar la misma pieza.
-- [ ] Cancelar antes de probar devuelve la seña.
+- [ ] Comprar deja el vinilo `vendido` **solo tras webhook aprobado**; si es retiro, con código generado; si es envío, con los datos de envío guardados.
+- [ ] Dos usuarios no pueden comprar la misma pieza (R-11).
+- [ ] Un pago rechazado deja la orden `cancelada` y libera el vinilo.
 
 ---
 
-## Milestone 4 — Retiro, resolución y venta walk-in → `v0.6.0`
-**Meta:** cerrar el ciclo físico en el local.
-**Épicas:** E6 (Retiro y resolución), E7 (Venta walk-in).
+## Milestone 4 — Entrega (retiro / envío) y walk-in → `v0.6.0`
+**Meta:** cerrar el ciclo de entrega.
+**Épicas:** E6 (Entrega), E7 (Venta walk-in).
 
-Alcance: HU-13, HU-14, HU-15.
-- Ingreso de código, resolución **ítem por ítem** (vender cobrando el resto / rechazar con refund), confirmación de entrega de compra directa, venta en efectivo walk-in sobre disponibles.
+Alcance: HU-13 (retiro/entrega), HU-14 (despacho de envío), HU-15 (walk-in).
+- Ingreso de código y confirmación de entrega (retiro); marcar orden como despachada (envío); venta en efectivo walk-in sobre disponibles.
 
 **Criterios de salida:**
-- [ ] El dueño resuelve una orden multi-vinilo vendiendo unos y rechazando otros, con refunds correctos.
+- [ ] El dueño ingresa un código y confirma la entrega → orden `entregada`.
+- [ ] El dueño ve los datos de envío y marca la orden `enviada`.
 - [ ] La venta walk-in saca el vinilo del catálogo al instante.
 
 ---
 
-## Milestone 5 — Cupones, jobs y notificaciones → `v0.7.0`
+## Milestone 5 — Pedidos de búsqueda → `v0.7.0`
+**Meta:** que el cliente pueda pedir un disco que no está y el dueño lo gestione.
+**Épicas:** E12 (Pedidos de búsqueda).
+
+Alcance: HU-23, HU-24.
+- El cliente (verificado) crea un pedido de búsqueda; el dueño recibe notificación; el cliente ve el estado; el dueño resuelve (encontrado/no encontrado) con aviso al cliente.
+
+**Criterios de salida:**
+- [ ] Un cliente crea un pedido y lo ve en estado `buscando`; el dueño recibe la notificación.
+- [ ] Al marcar `encontrado`, el cliente recibe un email y ve el nuevo estado; el dueño ve su contacto.
+
+---
+
+## Milestone 6 — Cupones, jobs y notificaciones → `v0.8.0`
 **Meta:** automatismos y avisos.
 **Épicas:** E8 (Cupones), E9 (Jobs), E10 (Notificaciones).
 
-Alcance: HU-16, HU-17, HU-18, HU-19, HU-20.
+Alcance: HU-16, HU-18, HU-19, HU-20.
 - Generación de cupón (1 por compra, tope 1 cada 30 días, mayor %, validez 2 meses).
-- Jobs: vencimiento de reservas (seña perdida) y ocultamiento de vendidos a 30 días.
-- Notificaciones: cartelito + email al dueño; email de confirmación al cliente.
+- Job: ocultamiento de vendidos a 30 días.
+- Notificaciones: cartelito + email al dueño (nueva compra, nuevo pedido de búsqueda); emails al cliente (confirmación, vinilo encontrado).
 
 **Criterios de salida:**
-- [ ] El cupón se genera respetando el tope y el mayor % de los ítems vendidos.
-- [ ] Una reserva no retirada vence sola a los 7 días.
+- [ ] El cupón se genera respetando el tope y el mayor % de los ítems de la compra.
 - [ ] Un vendido con +30 días desaparece del catálogo (sin borrarse).
 
 ---
 
-## Milestone 6 — Panel/dashboard, reembolsos y hardening → `v0.8.0`
+## Milestone 7 — Panel/dashboard, reembolsos y hardening → `v0.9.0`
 **Meta:** dejar el panel usable y el sistema robusto.
 **Épicas:** E11 (Panel y dashboard).
 
 Alcance: HU-21, HU-22 + endurecimiento.
-- Dashboard (reservas activas con vencimiento, ventas del mes, señas pendientes de retiro), gestión de reembolsos, testing E2E de los flujos críticos, validaciones y manejo de errores.
+- Dashboard (ventas del mes, órdenes pendientes de entrega/despacho, pedidos de búsqueda abiertos), gestión de reembolsos (excepcionales), testing E2E de los flujos críticos, validaciones y manejo de errores.
 
 **Criterios de salida:**
 - [ ] Dashboard muestra métricas reales.
-- [ ] Suite de tests cubre los flujos de la spec (R-1…R-13).
+- [ ] Suite de tests cubre los flujos de la spec (R-6…R-15).
 
 ---
 
@@ -122,14 +136,13 @@ Alcance: HU-21, HU-22 + endurecimiento.
 **Meta:** salir a la calle.
 - Mercado Pago en **producción** (credenciales prod, webhook público por HTTPS).
 - Hosting definido (backend siempre-activo por webhooks/jobs), object storage para fotos, dominio y certificados.
-- Definir D-3 (recordatorio de vencimiento al cliente): incluir o no.
 - Datos reales cargados por el dueño; comprobante interno operativo.
 
 ---
 
 ## Fases futuras (post-MVP, fuera de este plan)
 - Módulo de turnos/peluquería y **redención de cupones**.
-- Envío por correo.
+- **Integración con la API del correo (Correo Argentino / OCA)**: cotización, etiquetas y tracking (en el MVP el envío es manual). Ver D-7.
 - Carga por IA (foto tapa/contratapa → autocompletado).
 - WhatsApp automático al dueño.
 - CDs y cassettes (campo `formato` ya preparado).
@@ -142,9 +155,11 @@ Alcance: HU-21, HU-22 + endurecimiento.
 M0 setup
  └─► M1 cuentas + catálogo lectura
       ├─► M2 gestión vinilos (dueño)
-      └─► M3 pagos (seña + compra)
-           └─► M4 retiro + walk-in
-                └─► M5 cupones + jobs + notificaciones
-                     └─► M6 panel + hardening
+      ├─► M3 compra directa (pago)
+      │    └─► M4 entrega (retiro/envío) + walk-in
+      └─► M5 pedidos de búsqueda
+           (M3/M4/M5 en paralelo salvo dependencias)
+                └─► M6 cupones + jobs + notificaciones
+                     └─► M7 panel + hardening
                           └─► v1.0.0 producción
 ```

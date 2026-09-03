@@ -65,18 +65,20 @@ Flujo base: el frontend consume la API REST. Los pagos se inician desde el front
 - **Scheduler** — jobs.
 
 ### 3.2 Entidades JPA (mapeo del §4 de la spec)
-Se mapean 1:1 con la spec: `Usuario`, `Vinilo`, `FotoVinilo`, `Genero`, `Orden`, `ItemOrden`, `Pago`, `Reembolso`, `Cupon`, `NotificacionDueno`.
+Se mapean 1:1 con la spec: `Usuario`, `Vinilo`, `FotoVinilo`, `Genero`, `Orden`, `ItemOrden`, `Pago`, `Reembolso`, `Cupon`, `NotificacionDueno`, `PedidoBusqueda`.
 
 Enums a persistir (usar `@Enumerated(EnumType.STRING)` para legibilidad en BD):
-- `Vinilo.estado`: `DISPONIBLE`, `RESERVADO`, `VENDIDO`, `PAUSADO`.
+- `Vinilo.estado`: `DISPONIBLE`, `VENDIDO`, `PAUSADO`. *(v0.2: se elimina `RESERVADO`.)*
 - `Vinilo.estadoDisco` (Goldmine): `MINT`, `NEAR_MINT`, `VG_PLUS_PLUS`, `VG_PLUS`, `VG`, `GOOD`, `POOR`.
 - `Vinilo.formato`: `VINILO` (preparado: `CD`, `CASSETTE`).
-- `Orden.tipo`: `SENA`, `COMPRA_DIRECTA`.
-- `Orden.estado` (seña): `PENDIENTE_PAGO`, `ACTIVA`, `CERRADA`, `CANCELADA`, `VENCIDA`. (compra directa): `PENDIENTE_PAGO`, `PAGADA`, `ENTREGADA`, `CANCELADA`.
-- `ItemOrden.estadoItem`: `PENDIENTE`, `VENDIDO`, `RECHAZADO`, `VENCIDO`.
-- `Pago.tipo`: `SENA`, `RESTO`, `TOTAL`; `Pago.medio`: `MERCADOPAGO`, `EFECTIVO`; `Pago.estado`: `PENDIENTE`, `APROBADO`, `RECHAZADO`.
-- `Reembolso.motivo`: `RECHAZO_PRUEBA`, `CANCELACION_VOLUNTARIA`.
+- `Orden.estado`: `PENDIENTE_PAGO`, `PAGADA`, `ENTREGADA`, `ENVIADA`, `CANCELADA`.
+- `Orden.modoEntrega`: `RETIRO`, `ENVIO`.
+- `Pago.medio`: `MERCADOPAGO`, `EFECTIVO`; `Pago.estado`: `PENDIENTE`, `APROBADO`, `RECHAZADO`.
 - `Cupon.estado`: `ACTIVO`, `USADO`, `VENCIDO`.
+- `NotificacionDueno.tipo`: `NUEVA_COMPRA`, `NUEVO_PEDIDO_BUSQUEDA`.
+- `PedidoBusqueda.estado`: `BUSCANDO`, `ENCONTRADO`, `NO_ENCONTRADO`.
+
+> **Cambio v0.2 (sin seña):** se eliminan `Vinilo.senable`, `Orden.tipo` (`SENA`/`COMPRA_DIRECTA`), `ItemOrden.estadoItem`, `Pago.tipo` (`SENA`/`RESTO`/`TOTAL`) y el enum `Reembolso.motivo` (pasa a texto libre; devolución excepcional). Se agregan `Orden.modoEntrega`, los datos de envío en `Orden`, y la entidad `PedidoBusqueda`.
 
 ### 3.3 Migraciones
 Flyway con scripts versionados (`V1__init.sql`, `V2__…`). El esquema nunca se toca a mano en prod; todo cambio va por migración y queda referenciado en el registro de releases.
@@ -90,17 +92,18 @@ Flyway con scripts versionados (`V1__init.sql`, `V2__…`). El esquema nunca se 
 ### 3.5 Integración con Mercado Pago
 Decisión pendiente menor: **Checkout Pro** (redirect, más simple) vs. **Payment Brick** (checkout embebido, mejor UX). Recomendado empezar con Checkout Pro por simplicidad; el modelo no cambia.
 
-Puntos técnicos clave:
-- **Inicio de pago:** al crear la orden (`PENDIENTE_PAGO`), el backend crea una preferencia/pago en MP por el monto correspondiente (50% seña o 100% compra) y devuelve al frontend lo necesario para el checkout.
-- **Confirmación por webhook:** MP notifica el resultado al backend (endpoint de webhook). **Solo con el webhook aprobado** se pasa la orden a `ACTIVA`/`PAGADA`, se cambian estados de vinilos, se generan código de retiro y (si corresponde) cupón. El redirect del navegador se usa solo para UX, no como fuente de verdad.
+Puntos técnicos clave (v0.2: solo compra directa):
+- **Inicio de pago:** al crear la orden (`PENDIENTE_PAGO`), el backend crea una preferencia/pago en MP por el **100% del total** y devuelve al frontend lo necesario para el checkout.
+- **Confirmación por webhook:** MP notifica el resultado al backend (endpoint de webhook). **Solo con el webhook aprobado** se pasa la orden a `PAGADA`, se marcan los vinilos `VENDIDO`, se genera el código de retiro (si `modoEntrega = RETIRO`) y (si corresponde) el cupón. El redirect del navegador se usa solo para UX, no como fuente de verdad.
 - **Idempotencia:** los webhooks pueden llegar duplicados; procesar de forma idempotente (verificar si el pago ya fue registrado).
-- **Devoluciones (R-3 / R-4):** el backend llama a la API de refund de MP (total o parcial por ítem). Registrar `mp_refund_id` en `Reembolso`. (Recordatorio de la spec: MP no cobra comisión en la devolución y permite hasta 90 días.)
-- **Pago del resto en efectivo:** no pasa por MP; se registra un `Pago` con `medio = EFECTIVO` desde el panel.
+- **Devoluciones (excepcionales):** el backend llama a la API de refund de MP. Registrar `mp_refund_id` en `Reembolso`. La compra es venta final; el reembolso es una acción manual del dueño para casos puntuales. (MP no cobra comisión en la devolución y permite hasta 90 días.)
+- **Venta walk-in en efectivo:** no pasa por MP; se registra un `Pago` con `medio = EFECTIVO` desde el panel.
 
 ### 3.6 Jobs programados
-- **Job de vencimiento de reservas (Flujo F):** corre periódicamente (ej. cada hora); busca órdenes `SENA` en estado `ACTIVA` con `fecha_vencimiento` pasada; marca ítems `PENDIENTE` como `VENCIDO`, vinilos → `DISPONIBLE`, orden → `VENCIDA`. **Sin devolución** (seña perdida).
-- **Job de ocultamiento de vendidos (Flujo G):** corre diariamente; oculta del catálogo público los vinilos `VENDIDO` con `fecha_venta` > 30 días. No borra el registro; se filtra en las queries del catálogo (ej. flag `visible_publico` o condición por fecha).
-- **Generación de cupón:** **no es un job**, es event-driven — se dispara al cerrar la orden con al menos un ítem `VENDIDO`, aplicando R-8 (tope de 1 cada 30 días corridos, % = mayor de los ítems vendidos, validez 2 meses).
+- **Job de ocultamiento de vendidos (Flujo E):** corre diariamente; oculta del catálogo público los vinilos `VENDIDO` con `fecha_venta` > 30 días. No borra el registro; se filtra en las queries del catálogo (ej. flag `visible_publico` o condición por fecha).
+- **Generación de cupón:** **no es un job**, es event-driven — se dispara al confirmarse la compra (webhook aprobado), aplicando R-8 (tope de 1 cada 30 días corridos, % = mayor de los ítems de la orden, validez 2 meses).
+
+> **Cambio v0.2:** se elimina el job de vencimiento de reservas (no hay seña/reserva).
 
 ### 3.7 Generación del código de retiro (R-13)
 - Alfabeto sin ambiguos (excluir `0 O 1 I L`), mayúsculas. Ej. `ABCDEFGHJKMNPQRSTUVWXYZ23456789`.
@@ -109,10 +112,10 @@ Puntos técnicos clave:
 - Se genera al confirmarse el pago (webhook aprobado).
 
 ### 3.8 Concurrencia (R-11)
-Cada vinilo es pieza única: hay que evitar doble reserva. Opciones:
+Cada vinilo es pieza única: hay que evitar la **doble venta**. Opciones:
 - **Bloqueo optimista:** columna `@Version` en `Vinilo`; si dos operaciones compiten, una falla y se reintenta/rechaza.
 - **Bloqueo pesimista** (`SELECT … FOR UPDATE`) al momento de crear la orden y cambiar el estado del vinilo.
-Recomendado: transacción que verifique `estado = DISPONIBLE` y lo pase a `RESERVADO`/bloqueado atómicamente antes de iniciar el pago; liberar si el pago no se aprueba o expira.
+Recomendado: al crear la orden, verificar en una transacción que el vinilo está `DISPONIBLE` y marcarlo como "comprometido" (para que no lo compre otro mientras se paga); si el pago no se aprueba o expira, liberarlo. Al aprobarse el pago (webhook) pasa a `VENDIDO`.
 
 ### 3.9 Notificaciones
 - **Al dueño:** registro en `NotificacionDueno` (alimenta el "cartelito"/badge del panel) + email vía Spring Mail. (WhatsApp queda para fase 2.)
@@ -124,10 +127,10 @@ Recomendado: transacción que verifique `estado = DISPONIBLE` y lo pase a `RESER
 
 - **Base:** React + Vite + TypeScript; routing con React Router; estado de servidor con React Query (o similar) para cachear catálogo y órdenes.
 - **Autenticación:** manejo de JWT (access/refresh), login email/contraseña y botón de Google.
-- **Catálogo público:** grilla con portada, buscador, filtros (artista, género, precio, estado), orden por más nuevos, ficha con galería, descuento en corte y CTA Señar/Comprar según `senable`. Incluir tooltip/glosario de la escala Goldmine (§8 de la spec).
-- **Checkout:** integración con el SDK de Mercado Pago.
-- **Cuenta del cliente:** órdenes y estados, vinilos comprados, cupones, cancelación de reserva (R-4).
-- **Panel del dueño:** dashboard, ABM de vinilos y fotos, ingreso de código de retiro y resolución ítem por ítem, venta walk-in, gestión de reembolsos.
+- **Catálogo público:** grilla con portada, buscador, filtros (artista, género, precio, estado), orden por más nuevos, ficha con galería, descuento en corte y CTA **Comprar**. Espacio **"¿No lo encontrás? Pedilo"** para crear un pedido de búsqueda. Tooltip/glosario de la escala Goldmine (§8 de la spec).
+- **Checkout:** elección de **entrega** (retiro / envío con datos de dirección) + integración con el SDK de Mercado Pago.
+- **Cuenta del cliente:** órdenes y estados, vinilos comprados, cupones, y **mis pedidos de búsqueda** con su estado.
+- **Panel del dueño:** dashboard, ABM de vinilos y fotos, órdenes (retiro: ingresar código y confirmar entrega; envío: ver dirección y marcar despachado), **pedidos de búsqueda** (marcar encontrado/no encontrado, ver contacto), venta walk-in, reembolsos.
 
 ---
 
@@ -146,18 +149,21 @@ Recomendado: transacción que verifique `estado = DISPONIBLE` y lo pase a `RESER
 | POST | `/vinilos` | admin | Alta de vinilo |
 | PUT | `/vinilos/{id}` | admin | Edición |
 | PATCH | `/vinilos/{id}/pausar` | admin | Pausar/reactivar |
-| POST | `/vinilos/{id}/venta-efectivo` | admin | Venta walk-in (Flujo E) |
-| POST | `/ordenes/sena` | cliente | Crear orden de seña (uno o varios vinilos) |
-| POST | `/ordenes/compra` | cliente | Crear orden de compra directa |
-| POST | `/ordenes/{id}/cancelar` | cliente | Cancelar reserva antes de probar (R-4) |
+| POST | `/vinilos/{id}/venta-efectivo` | admin | Venta walk-in (Flujo D) |
+| POST | `/ordenes` | cliente | Crear orden de compra directa (uno o varios vinilos) + modo de entrega |
 | GET | `/ordenes/mias` | cliente | Órdenes del cliente |
 | POST | `/webhooks/mercadopago` | MP | Confirmación de pagos/refunds |
-| POST | `/retiros/{codigo}` | admin | Buscar orden por código |
-| POST | `/retiros/{codigo}/items/{itemId}/vender` | admin | Confirmar venta (cobrar resto) |
-| POST | `/retiros/{codigo}/items/{itemId}/rechazar` | admin | Rechazo + reembolso (R-3) |
-| POST | `/retiros/{codigo}/entregar` | admin | Confirmar entrega (compra directa) |
+| POST | `/retiros/{codigo}` | admin | Buscar orden por código (retiro) |
+| POST | `/retiros/{codigo}/entregar` | admin | Confirmar entrega en el local (Flujo B) |
+| POST | `/admin/ordenes/{id}/despachar` | admin | Marcar orden como enviada por correo (Flujo C) |
+| POST | `/pedidos-busqueda` | cliente | Crear pedido de búsqueda (R-15) |
+| GET | `/pedidos-busqueda/mios` | cliente | Mis pedidos de búsqueda |
+| GET | `/admin/pedidos-busqueda` | admin | Pedidos de búsqueda (abiertos/resueltos) |
+| POST | `/admin/pedidos-busqueda/{id}/resolver` | admin | Marcar encontrado / no encontrado |
 | GET | `/panel/dashboard` | admin | Métricas del dashboard |
 | GET | `/cupones/mios` | cliente | Cupones del cliente |
+
+> **Cambio v0.2:** se eliminan `/ordenes/sena`, `/ordenes/{id}/cancelar` y la resolución por ítem del retiro (`/retiros/.../vender`, `/rechazar`). Se agregan el despacho de envíos y los endpoints de pedidos de búsqueda.
 
 ---
 
